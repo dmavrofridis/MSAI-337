@@ -1,6 +1,8 @@
 import nltk
 import re
 from nltk.tokenize import word_tokenize
+from sklearn.model_selection import train_test_split
+import numpy as np
 
 
 class my_corpus:
@@ -32,6 +34,8 @@ class my_corpus:
 
 def set_up():
     nltk.download('punkt')
+    stopwords = nltk.corpus.stopwords.words('english')
+    return stopwords
 
 
 def read_file(file_name):
@@ -44,7 +48,6 @@ def question_1(text):
 
 
 def question_2(text):
-
     for i in range(len(text)):
         print(text[i])
         text[i] = re.sub(r'^([0-9]{4})$', '<date>', text[i])
@@ -54,21 +57,43 @@ def question_2(text):
         text[i] = re.sub(r'[0-9]+', '<integer>', text[i])
     return text
 
+
+def question_3(text):
+    training_data, testing_data = train_test_split(text, test_size=0.2, random_state=25)
+    validation_data, testing_data = train_test_split(testing_data, test_size=0.5, random_state=25)
+    return training_data, testing_data, validation_data
+
+
+def question_4(text, stopwords):
+    maximum_frequency = 3.0
+    word_frequencies = {}
+    for word in text:
+        if word not in stopwords:
+            if word not in word_frequencies.keys():
+                word_frequencies[word] = 1
+            else:
+                word_frequencies[word] += 1
+
+    # Cap to the frequence of 3.0
+    for word in word_frequencies.keys():
+        word_frequencies[word] = (word_frequencies[word] / maximum_frequency)
+
+
 def main():
+    stopwords = set_up()
 
-    set_up()
-
-    # text = read_file("source_text.txt")
+    text = read_file("source_text.txt")
     corpus = my_corpus(None)
-    text = input('Please enter a test sequence to encode and recover: ')
-    text = question_1(text)
-    text = question_2(text)
-    print(text)
-    exit(0)
+    # text = input('Please enter a test sequence to encode and recover: ')
+
     # Question 1
     text = question_1(text)
     # Question 2
     text = question_2(text)
+    # Question 3
+    training_set, testing_set, validation_set = question_3(text)
+    # Question 4
+    question_4(text, stopwords)
 
     print(' ')
     ints = corpus.encode_as_ints(text)
