@@ -49,7 +49,6 @@ def question_1(text):
 
 def question_2(text):
     for i in range(len(text)):
-        print(text[i])
         text[i] = re.sub(r'^([0-9]{4})$', '<date>', text[i])
         text[i] = re.sub(r'([0-9]+\.[0-9]+)', '<decimal>', text[i])
         text[i] = re.sub(r'^([0-9]{2})$', '<day>', text[i])
@@ -85,25 +84,38 @@ def main():
     text = read_file("source_text.txt")
     corpus = my_corpus(None)
     # text = input('Please enter a test sequence to encode and recover: ')
+    text = read_file("source_text.txt")
 
-    # Question 1
-    text = question_1(text)
-    # Question 2
-    text = question_2(text)
+    x = text.split("<<end_of_passage>>")
+    d = "<end_of_passage>"
+    for line in x:
+        text = [e + d for e in line.split(d) if e]
     # Question 3
+    # Should be much more convenient if we slpit the set before we tokenize them.
     training_set, testing_set, validation_set = question_3(text)
+    print(len(training_set),len(testing_set),len(validation_set))
+    # Question 1
+    training_set,testing_set,validation_set = question_1(' '.join(training_set)),question_1(
+        ' '.join(testing_set)),question_1(' '.join(validation_set))
+    # Question 2
+    training_set, testing_set, validation_set = question_2(training_set), question_2(testing_set),\
+                                                question_2(validation_set)
+    print(validation_set)
     # Question 4
-    question_4(text, stopwords)
+    question_4(training_set, stopwords)
+    question_4(testing_set, stopwords)
+    question_4(validation_set, stopwords)
 
-    print(' ')
-    ints = corpus.encode_as_ints(text)
-    print(' ')
-    print('integer encodeing: ', ints)
-    print(' ')
-
-    text = corpus.encode_as_text(ints)
-    print(' ')
-    print('this is the encoded text: %s' % text)
+    #
+    # print(' ')
+    # ints = corpus.encode_as_ints(text)
+    # print(' ')
+    # print('integer encodeing: ', ints)
+    # print(' ')
+    #
+    # text = corpus.encode_as_text(ints)
+    # print(' ')
+    # print('this is the encoded text: %s' % text)
 
 
 if __name__ == "__main__":
