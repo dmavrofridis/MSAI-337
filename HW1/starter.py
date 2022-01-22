@@ -1,6 +1,7 @@
 import nltk
 import re
 from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
 from sklearn.model_selection import train_test_split
 import numpy as np
 
@@ -48,12 +49,13 @@ def question_1(text):
 
 
 def question_2(text):
+
     for i in range(len(text)):
         print(text[i])
         text[i] = re.sub(r'^([0-9]{4})$', '<date>', text[i])
         text[i] = re.sub(r'([0-9]+\.[0-9]+)', '<decimal>', text[i])
         text[i] = re.sub(r'^([0-9]{2})$', '<day>', text[i])
-        text[i] = re.sub(r'^([0-9]+[^\.0-9][0-9]+)$', '<other>', text[i])
+        text[i] = re.sub(r'^([0-9]+[^0-9][0-9]+)$', '<other>', text[i])
         text[i] = re.sub(r'[0-9]+', '<integer>', text[i])
     return text
 
@@ -74,14 +76,17 @@ def question_4(text, stopwords):
             else:
                 word_frequencies[word] += 1
 
-    # Cap to the frequence of 3.0
+    # Cap to the frequency of 3.0
     for word in word_frequencies.keys():
         word_frequencies[word] = (word_frequencies[word] / maximum_frequency)
 
+    #print(word_frequencies)
+    print("WORD INDECES -> " + str(word_indices))
+
 
 def main():
-    stopwords = set_up()
 
+    stopwords = set_up()
     text = read_file("source_text.txt")
     corpus = my_corpus(None)
     # text = input('Please enter a test sequence to encode and recover: ')
