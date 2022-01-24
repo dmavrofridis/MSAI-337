@@ -3,6 +3,16 @@ import re
 from nltk.tokenize import word_tokenize
 from sklearn.model_selection import train_test_split
 import numpy as np
+from tokenizers import Tokenizer
+from tokenizers.decoders import ByteLevel as ByteLevelDecoder
+from tokenizers.models import BPE, WordPiece
+from tokenizers.normalizers import Lowercase, NFKC, Sequence
+from tokenizers.pre_tokenizers import ByteLevel
+from tokenizers.trainers import BpeTrainer, WordPieceTrainer
+from tokenizers import normalizers
+from tokenizers.normalizers import NFD, StripAccents
+from tokenizers import decoders
+from tokenizers.pre_tokenizers import Whitespace
 
 
 class my_corpus:
@@ -82,41 +92,30 @@ def main():
     stopwords = set_up()
 
     text = read_file("source_text.txt")
-    corpus = my_corpus(None)
-    # text = input('Please enter a test sequence to encode and recover: ')
-    text = read_file("source_text.txt")
-
-    x = text.split("<<end_of_passage>>")
+    x = [text]
     d = "<end_of_passage>"
     for line in x:
         text = [e + d for e in line.split(d) if e]
-    # Question 3
-    # Should be much more convenient if we slpit the set before we tokenize them.
     training_set, testing_set, validation_set = question_3(text)
-    print(len(training_set),len(testing_set),len(validation_set))
-    # Question 1
-    training_set,testing_set,validation_set = question_1(' '.join(training_set)),question_1(
-        ' '.join(testing_set)),question_1(' '.join(validation_set))
-    # Question 2
-    training_set, testing_set, validation_set = question_2(training_set), question_2(testing_set),\
-                                                question_2(validation_set)
-    print(validation_set)
-    # Question 4
-    question_4(training_set, stopwords)
-    question_4(testing_set, stopwords)
-    question_4(validation_set, stopwords)
+    tokenizer = Tokenizer(WordPiece(unk_token="[UNK]"))
+    normalizer = normalizers.Sequence([NFD(), StripAccents()])
+    tokenizer.normalizer = normalizer
+    tokenizer.pre_tokenizer = Whitespace()
 
-    #
-    # print(' ')
-    # ints = corpus.encode_as_ints(text)
-    # print(' ')
-    # print('integer encodeing: ', ints)
-    # print(' ')
-    #
-    # text = corpus.encode_as_text(ints)
-    # print(' ')
-    # print('this is the encoded text: %s' % text)
+    # We initialize our trainer, giving him the details about the vocabulary we want to generate
+    trainer = WordPieceTrainer(vocab_size=5000, special_tokens=["[UNK]", "[CLS]", "[SEP]", "[PAD]", "[MASK]"])
+    tokenizer.train_from_iterator(training_set, trainer=trainer)
 
+    print("Trained vocab size: {}".format(tokenizer.get_vocab_size()))
+    print("Trained vocab size: {}".format(tokenizer.get_vocab()))
+    encoding = tokenizer.encode("This is a simple input to be tokenized")
+
+    print("Encoded string: {}".format(encoding.tokens))
+
+    tokenizer.decoder = decoders.WordPiece()
+
+    # "welcome to the tokenizers library."
+    print("Decoded string: {}".format(tokenizer.decode(encoding.ids)))
 
 if __name__ == "__main__":
     main()
