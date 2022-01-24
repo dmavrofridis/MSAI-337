@@ -1,10 +1,16 @@
 from global_variables import word_indices
+from nltk.tokenize import word_tokenize
 
-def question_7(text):
 
-    #encode the text using word_indeces corpus
+# not sure this is how he wants it, supposedly these are supposed to be seperate functions,
+# but that should be an easy change...
+def question_5(text):
+    # encode the text using word_indeces corpus
+    intvector = encode_text_as_int(text)
+    # decode the text using the same corpus
+    recovered_text = decode_ints_as_text(intvector)
 
-    #decode the text using the same corpus
+    return recovered_text
 
 
 def encode_text_as_int(text):

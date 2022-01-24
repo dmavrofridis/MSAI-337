@@ -2,6 +2,7 @@ import string
 
 import nltk
 import re
+import random
 from nltk.tokenize import word_tokenize
 from global_variables import *
 particles = list(string.punctuation)
@@ -58,8 +59,8 @@ def question_1(text):
 
 def question_2(text):
     for i in range(len(text)):
-        print(text[i])
-        text[i] = re.sub(r'^([0-9]{4})$', '<date>', text[i])
+        # print(text[i])
+        text[i] = re.sub(r'^([0-9]{4})', '<date>', text[i])
         text[i] = re.sub(r'([0-9]+\.[0-9]+)', '<decimal>', text[i])
         text[i] = re.sub(r'^([0-9]{2})$', '<day>', text[i])
         text[i] = re.sub(r'^([0-9]+[^\.0-9][0-9]+)$', '<other>', text[i])
@@ -68,8 +69,27 @@ def question_2(text):
 
 
 def question_3(text):
-    training_data, testing_data = train_test_split(text, test_size=0.2, random_state=25)
-    validation_data, testing_data = train_test_split(testing_data, test_size=0.5, random_state=25)
+    # training_data, testing_data = train_test_split(text, test_size=0.2, random_state=25)
+    # validation_data, testing_data = train_test_split(testing_data, test_size=0.5, random_state=25)
+
+    training_data = []
+    testing_data = []
+    validation_data = []
+
+    length = len(text)
+
+    order = range(0, length - 1)
+    order = list(order)
+    random.shuffle(order)
+
+    for i in range(length):
+        if i % 10 == 9:
+            testing_data.append(text[i])
+        elif i % 10 == 1:
+            validation_data.append(text[i])
+        else:
+            training_data.append(text[i])
+
     return training_data, testing_data, validation_data
 
 
