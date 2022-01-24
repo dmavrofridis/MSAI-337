@@ -6,6 +6,7 @@ def question_7(text):
 
     #decode the text using the same corpus
 
+
 def encode_text_as_int(text):
     intvector = []
 
@@ -21,12 +22,13 @@ def encode_text_as_int(text):
 
     return intvector
 
+
 def decode_ints_as_text(int_vector):
     outstring = ""
 
     for i in int_vector:
         if i != -1:
-            #poor man's implementation
+            # poor man's implementation
             for key, value in word_indices.items():
                 if value == i:
                     print(i, " ", value, " ", key)
