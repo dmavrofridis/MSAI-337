@@ -11,7 +11,6 @@ import numpy as np
 
 from nltk.tokenize import RegexpTokenizer
 
-
 # nltk.download()
 
 
