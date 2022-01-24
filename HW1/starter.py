@@ -98,7 +98,7 @@ def question_4_ii(training_corpus):
 
 
 
-def word_to_unk(training_corpus, frequency = 3):
+def word_to_unk(training_corpus, frequency = 5):
     word_frequncy = {}
 
     for token in training_corpus:
@@ -129,15 +129,17 @@ def question_iv(validation_data, training_data):
     return count
 
 
-def question_v(training_data, new_training_data):
+def question_v(new_training_data):
+    number = [str(i) for i in range(10)]
+    type_token ={'string':0, 'number':0}
 
-    checked =[]
-    count = 0
-    for index in range(len(training_data)):
-        if new_training_data[index] =='<unk>' and training_data[index] not in checked:
-            checked.append(training_data[index])
-            count +=1
-    return count
+    for token in new_training_data:
+        if token[-1] in number:
+            type_token['number'] +=1
+        else:
+            type_token['string'] +=1
+    return type_token
+
 
 
 
@@ -147,6 +149,42 @@ def question_vi(training_data,stopwords):
         if token in stopwords:
             count +=1
     return count
+
+#most encountered
+def custom_metric_1(new_training_data, number_of_top_words = 30):
+    word_frequncy = {}
+
+    for token in new_training_data:
+        if token in word_frequncy:
+            word_frequncy[token] +=1
+        else:
+            word_frequncy[token] = 1
+
+    lis = sorted(word_frequncy, key=word_frequncy.get, reverse=True)[:number_of_top_words]
+    final_dic = {}
+    for name in lis:
+        final_dic[name] = word_frequncy[name]
+    return final_dic
+
+#n_gram_creator
+def custom_metric_2(new_training_data, n=3, number_of_top_words = 30):
+    ngram_list = []
+    for index in range(len(new_training_data)):
+        if index >= n:
+            st = ''
+            for i in reversed(range(n)):
+                st += new_training_data[index -i] + ' '
+            ngram_list.append(st)
+    return custom_metric_1(ngram_list, number_of_top_words)
+
+
+
+
+
+
+
+
+
 
 
 
@@ -190,7 +228,7 @@ def main():
     # Question 1
     text = question_1(text)
     # Question 2
-    text = question_2(text)
+    #text = question_2(text)
     # Question 3
     training_data, testing_data, validation_data = question_3(text)
     training_data_without_stop_words = [token for token in training_data if token not in stopwords]
@@ -206,9 +244,10 @@ def main():
     new_training_data = word_to_unk(training_data_without_stop_words)
     print('number_of_unk' +  "   " + str(question_iii(training_data_without_stop_words)))
     print('out_of_words' +  "   " + str(question_iv(validation_data_data_without_stop_words, new_training_data)))
-    print('number_of_types' +  "   " + str(question_v(training_data_without_stop_words, new_training_data)))
+    print('number_of_types' +  "   " + str(question_v(new_training_data)))
     print('number_of_stopwords' +  "   " + str(question_vi(training_data, stopwords)))
-
+    print('top_words' +  "   " + str(custom_metric_1(new_training_data, number_of_top_words=120)))
+    print('ngram_words'+"  "+    str(custom_metric_2(new_training_data, number_of_top_words=120)))
 # QUESTION 4 ends
 
     #print(question_4(text, stopwords))
