@@ -300,8 +300,6 @@ def main():
     # Question 3
     training_data, testing_data, validation_data = question_3(text)
 
-    write_to_file([training_data, testing_data, validation_data], ["training_data", "testing_data", "validation_data"])
-
     # training_data_without_stop_words = [token for token in training_data if token not in stopwords or token not in particles]
     training_data_without_stop_words = [token for token in training_data if
                                         token not in stopwords and token not in particles]
@@ -310,6 +308,9 @@ def main():
                                                token not in stopwords and token not in particles]
     testing_data_data_without_stop_words = [token for token in testing_data if
                                             token not in stopwords and token not in particles]
+
+    write_to_file([training_data_without_stop_words, testing_data_data_without_stop_words, validation_data_data_without_stop_words], ["training_data", "testing_data", "validation_data"])
+
 
     # Question 4
     print('vocabruary size' + " " + str(question_4_i(training_data_without_stop_words)))
