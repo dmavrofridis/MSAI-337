@@ -56,6 +56,58 @@ def read_file(file_name):
 def question_1(text):
     return [token.lower() for token in word_tokenize(text)]
 
+def question_2(text):
+    date= {}
+    decimal={}
+    day ={}
+    integer = {}
+    other = {}
+    for i in range(len(text)):
+        if  re.match(r'^([0-9]{4})',text[i] ):
+            print(text[i])
+            if text[i] not in date:
+                date[text[i]] =1
+            else:
+                date[text[i]] +=1
+            text[i] = '<date>'
+
+        elif  re.match(r'([0-9]+\.[0-9]+)',text[i] ):
+            print(text[i])
+            if text[i] not in decimal:
+                decimal[text[i]] =1
+            else:
+                decimal[text[i]] +=1
+            text[i] = '<decimal>'
+
+        elif re.match(r'([0-9]+\.[0-9]+)',text[i] ):
+            print(text[i])
+
+            if  text[i] not in day:
+                day[text[i]] =1
+            else:
+                day[text[i]] +=1
+            text[i] = '<day>'
+
+        elif re.match(r'([0-9]+\.[0-9]+)',text[i] ):
+            print(text[i])
+
+            if text[i] not in other:
+                other[text[i]] =1
+            else:
+                other[text[i]] +=1
+            text[i] = '<other>'
+
+        elif re.match(r'([0-9]+\.[0-9]+)',text[i] ):
+            print(text[i])
+
+            if text[i] not in integer:
+                integer[text[i]] =1
+            else:
+                integer[text[i]] +=1
+            text[i] = '<integer>'
+    print(date)
+    return text, date, decimal, day, other, integer
+'''
 
 def question_2(text):
     for i in range(len(text)):
@@ -66,8 +118,7 @@ def question_2(text):
         text[i] = re.sub(r'^([0-9]+[^\.0-9][0-9]+)$', '<other>', text[i])
         text[i] = re.sub(r'[0-9]+', '<integer>', text[i])
     return text
-
-
+'''
 def question_3(text):
     # training_data, testing_data = train_test_split(text, test_size=0.2, random_state=25)
     # validation_data, testing_data = train_test_split(testing_data, test_size=0.5, random_state=25)
@@ -141,7 +192,30 @@ def word_to_unk(training_corpus, frequency=5):
         else:
             new_training_corpus.append(token)
 
-    return new_training_corpus, types_counter
+    return new_training_corpus
+
+def types_to_unk(date, decimal, day, other, integer, threshold =5):
+    date_c, decimal_c, day_c, other_c, integer_c, threshhold_c = 0,0,0,0,0,0
+    for i in date:
+        if date[i] <=5:
+            date_c +=1
+    for i in decimal:
+        if decimal[i] <= 5:
+            decimal_c += 1
+
+    for i in day:
+        if day[i] <=5:
+            day_c +=1
+    for i in other:
+        if other[i] <= 5:
+            other_c += 1
+
+    for i in integer:
+        if integer[i] <= 5:
+            integer += 1
+
+    return date_c, decimal_c, day_c, other_c, integer_c, threshhold_c
+
 
 
 def question_iii(new_training_corpus):
@@ -207,7 +281,8 @@ def main():
     # Question 1
     text = question_1(text)
     # Question 2
-    text = question_2(text)
+    text, date, decimal, day, other, integer = question_2(text)
+    print('types_to_ukn' + "   "  + str(types_to_unk( date, decimal, day, other, integer)))
     # Question 3
     training_data, testing_data, validation_data = question_3(text)
 
@@ -225,10 +300,10 @@ def main():
     print('test_data_token_count' + " " + str(question_4_i(testing_data_data_without_stop_words)))
     print('training_data_token_count' + " " + str(question_4_ii(training_data_without_stop_words)))
 
-    new_training_data, types_counter = word_to_unk(training_data_without_stop_words)
+    new_training_data = word_to_unk(training_data_without_stop_words)
     print('number_of_unk' + "   " + str(question_iii(new_training_data)))
     print('out_of_words' + "   " + str(question_iv(validation_data_data_without_stop_words, new_training_data)))
-    print('number_of_types' + "   " + str(types_counter))
+    #print('number_of_types' + "   " + str(types_counter))
     print('number_of_stopwords' + "   " + str(question_vi(training_data, stopwords)))
     print('top_words' + "   " + str(custom_metric_1(new_training_data, number_of_top_words=100)))
     print('ngram_words' + "  " + str(custom_metric_2(new_training_data, number_of_top_words=100)))
