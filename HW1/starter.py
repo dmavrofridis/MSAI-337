@@ -200,31 +200,38 @@ def main():
     stopwords = set_up()
     text = read_file("source_text.txt")
     corpus = my_corpus(None)
-    # text = input('Please enter a test sequence to encode and recover: ')
+    particles.extend(['', '==', '', '``', "'s",  "s" ,'===',"''", '.', ',', '(', ')', "''", ])
+    stopwords.extend(particles)
+
 
     # Question 1
     text = question_1(text)
     # Question 2
-    # text = question_2(text)
+    text = question_2(text)
     # Question 3
     training_data, testing_data, validation_data = question_3(text)
-    training_data_without_stop_words = [token for token in training_data if token not in stopwords]
-    validation_data_data_without_stop_words = [token for token in validation_data if token not in stopwords]
-    testing_data_data_without_stop_words = [token for token in testing_data if token not in stopwords]
+
+
+
+    #training_data_without_stop_words = [token for token in training_data if token not in stopwords or token not in particles]
+    training_data_without_stop_words = [token for token in training_data if token not in stopwords and token not in particles]
+
+    validation_data_data_without_stop_words = [token for token in validation_data if token not in stopwords and token not in particles]
+    testing_data_data_without_stop_words = [token for token in testing_data if token not in stopwords and token not in particles]
 
     # Question 4
-    print('training_data_token_count' + " " + str(question_4_i(training_data_without_stop_words)))
+    print('vocabruary size' + " " + str(question_4_i(training_data_without_stop_words)))
     print('validation_data_token_count' + " " + str(question_4_i(validation_data_data_without_stop_words)))
     print('test_data_token_count' + " " + str(question_4_i(testing_data_data_without_stop_words)))
-    print('vocabruary_size' + " " + str(question_4_ii(training_data_without_stop_words)))
+    print('training_data_token_count' + " " + str(question_4_ii(training_data_without_stop_words)))
 
     new_training_data, types_counter = word_to_unk(training_data_without_stop_words)
-    print('number_of_unk' + "   " + str(question_iii(training_data_without_stop_words)))
+    print('number_of_unk' + "   " + str(question_iii(new_training_data)))
     print('out_of_words' + "   " + str(question_iv(validation_data_data_without_stop_words, new_training_data)))
     print('number_of_types' + "   " + str(types_counter))
     print('number_of_stopwords' + "   " + str(question_vi(training_data, stopwords)))
-    print('top_words' + "   " + str(custom_metric_1(new_training_data, number_of_top_words=30)))
-    print('ngram_words' + "  " + str(custom_metric_2(new_training_data, number_of_top_words=120)))
+    print('top_words' + "   " + str(custom_metric_1(new_training_data, number_of_top_words=100)))
+    print('ngram_words' + "  " + str(custom_metric_2(new_training_data, number_of_top_words=100)))
 
 
 # QUESTION 4 ends
