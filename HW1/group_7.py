@@ -6,27 +6,27 @@ from nltk.tokenize import word_tokenize
 # but that should be an easy change...
 def question_5(text):
     # encode the text using word_indeces corpus
-    intvector = encode_text_as_int(text)
+    int_vector = encode_text_as_int(text)
     # decode the text using the same corpus
-    recovered_text = decode_ints_as_text(intvector)
+    recovered_text = decode_ints_as_text(int_vector)
 
     return recovered_text
 
 
 def encode_text_as_int(text):
-    intvector = []
+    int_vector = []
 
-    splittext = [token.lower() for token in word_tokenize(text)]
+    split_text = [token.lower() for token in word_tokenize(text)]
 
-    for word in splittext:
+    for word in split_text:
         if word.lower() in word_indices.keys():
-            intvector.append(word_indices[word.lower()])
+            int_vector.append(word_indices[word.lower()])
         else:
-            intvector.append(-1);
+            int_vector.append(-1)
 
-    print(text, "encoded to ", intvector)
+    print(text, "encoded to ", int_vector)
 
-    return intvector
+    return int_vector
 
 
 def decode_ints_as_text(int_vector):
