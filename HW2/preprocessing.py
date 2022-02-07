@@ -1,3 +1,9 @@
+import nltk
+import re
+from nltk.tokenize import RegexpTokenizer
+import string
+
+tokenizer = RegexpTokenizer(r'\w+')
 def load_text(path):
     with open(path, "r") as f:
         lines = f.read().splitlines()
@@ -23,11 +29,25 @@ def lists_to_tokens(text):
     tokens =[]
     for line in text:
         for word in line:
-            if word != '' or word != '=' or word != '  ':
+            if word != '':
                 tokens.append(word)
     return tokens
+def to_number(text):
+    for i in range(len(text)):
+        # print(text[i])
+        text[i] = re.sub(r'^([0-9]{4})', '<date>', text[i])
+        text[i] = re.sub(r'([0-9]+\.[0-9]+)', '<decimal>', text[i])
+        text[i] = re.sub(r'^([0-9]{2})$', '<day>', text[i])
+        text[i] = re.sub(r'^([0-9]+[^\.0-9][0-9]+)$', '<other>', text[i])
+        text[i] = re.sub(r'[0-9]+', '<integer>', text[i])
+    return text
 
+stopwords = nltk.corpus.stopwords.words('english')
+stopwords.extend(string.punctuation)
 
+def remove_stopwords(text):
+    output= [i for i in text if i not in stopwords]
+    return output
 
 
 
