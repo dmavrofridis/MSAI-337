@@ -24,8 +24,8 @@ def main():
 
 
     vectorized_tensors = dataloader.wikiDataset(one_hot_representation)
-    print('shape_of_1_smaple_data_is---------->' + str( vectorized_tensors[0].shape))
-    print('type_of_smaple_data_is---------->' + str(type(vectorized_tensors)))
+    print('shape_of_1_sample_data_is---------->' + str( vectorized_tensors[0].shape))
+    print('type_of_sample_data_is---------->' + str(type(vectorized_tensors)))
     loadedData = dataloader.batch_divder(vectorized_tensors, batch_size=20)
 
 
