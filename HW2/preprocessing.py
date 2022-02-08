@@ -3,9 +3,12 @@ import re
 from nltk.tokenize import RegexpTokenizer
 import string
 
+def setup_nltk():
+    nltk.download('stopwords')
+
 tokenizer = RegexpTokenizer(r'\w+')
 def load_text(path):
-    with open(path, "r") as f:
+    with open(path, "r", encoding="utf-8") as f:
         lines = f.read().splitlines()
         for line in lines:
             line.replace("\n", " </s> ").split()
@@ -42,10 +45,11 @@ def to_number(text):
         text[i] = re.sub(r'[0-9]+', '<integer>', text[i])
     return text
 
-stopwords = nltk.corpus.stopwords.words('english')
-stopwords.extend(string.punctuation)
+
 
 def remove_stopwords(text):
+    stopwords = nltk.corpus.stopwords.words('english')
+    stopwords.extend(string.punctuation)
     output= [i for i in text if i not in stopwords]
     return output
 

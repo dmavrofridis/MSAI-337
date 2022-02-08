@@ -7,9 +7,10 @@ import time
 
 def main():
     start = time.time()
+    preprocessing.setup_nltk()
     text = preprocessing.load_text('wiki.train.txt')
     text = preprocessing.string_to_lower(text)
-    text =  preprocessing.splitting_tokens(text)
+    text = preprocessing.splitting_tokens(text)
     text = preprocessing.lists_to_tokens(text)
     text = preprocessing.remove_stopwords(text)
     text = preprocessing.to_number(text)
