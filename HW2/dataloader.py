@@ -84,7 +84,8 @@ class wikiDataset(torch.utils.data.Dataset):
         sample = torch.Tensor(self.data[idx])
         label = torch.Tensor(self.labels[idx])
 
-        label = torch.argmax(label)+1
+        label = int(torch.argmax(label)+1)
+
         return sample, label
 
 

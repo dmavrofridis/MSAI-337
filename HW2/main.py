@@ -34,7 +34,7 @@ def main():
     dataset_with_batch = dataloader.batch_divder(dataset, batch_size=20)
     net = FeedForwardNetwork.FeedForward(input_size=5, number_of_classes= 27422, embedding_space=100)
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(net.parameters(), lr=0.01)
+    optimizer = optim.Adam(net.parameters(), lr=0.005)
     FeedForwardNetwork.train( dataset_with_batch, net,optimizer , criterion, 20 )
 
 
