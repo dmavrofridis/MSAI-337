@@ -84,8 +84,30 @@ class wikiDataset(torch.utils.data.Dataset):
         sample = torch.Tensor(self.data[idx])
         label = torch.Tensor(self.labels[idx])
 
-        label = torch.argmax(label)
+        label = torch.argmax(label)+1
         return sample, label
+
+
+
+class wikiDatasetBagOfWords(torch.utils.data.Dataset):
+    def __init__(self, data, labels, reverse_mapping, one_hot_vectors):
+        self.data = data
+        self.labels = labels
+        self.reverse_mapping = reverse_mapping
+        self.one_hot_vectors =one_hot_vectors
+        #self.transform = transform
+    def __len__(self):
+        return len(self.data)
+    def __getitem__(self, idx):
+        sample = self.data[idx]
+        bag = integers_to_vectors(sample, self.reverse_mapping, self.one_hot_vectors)
+        X = torch.Tensor(sum([np.array(i) for i in bag]))
+
+        label = torch.Tensor(self.labels[idx])
+
+        label = torch.argmax(label)+1
+        return X, label
+
 
 def  batch_divder(vectors, batch_size = 20):
     data =  torch.utils.data.DataLoader(vectors,batch_size)
