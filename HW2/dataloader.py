@@ -63,13 +63,26 @@ def sliding_window(integer_list, window_size):
     return slised
 
 def label_generation(integer_list):
-    labels =[]
+    labels = []
     for i in range(len(integer_list)):
         if i >=5:
             labels.append(integer_list[i])
     return labels
 
 
+class TextDataset(torch.utils.data.Dataset):
+    def __init__(self, data, labels, window):
+        self.data = data
+        self.labels = labels
+        self.window = window
+    def __len__(self):
+        return len(self.data)
+    def __getitem__(self, id):
+        sample = self.data[id:id+self.window]
+        #sample = self.data[id]
+        label  = self.labels[id]
+
+        return sample, label
 
 
 
@@ -110,8 +123,30 @@ class wikiDatasetBagOfWords(torch.utils.data.Dataset):
         return X, label
 
 
-def  batch_divder(vectors, batch_size = 20):
-    data =  torch.utils.data.DataLoader(vectors,batch_size)
+def spec_collate(batch):
+    # window = [item[0] for item in batch]
+    # label = [item[1] for item in batch]
+    # tens = [torch.tensor(window), torch.tensor(label)]
+    # data = None
+    # for item in batch:
+    #     window = item[0]
+    #     label = item[1]
+    #     if data == None:
+    #         data = torch.tensor([window, label])
+    #     else:
+    #         torch.cat((data, torch.tensor([window,label])))
+    #     #data.append([window, label])
+    # print(data)
+    # tens = torch.tensor(data)
+    data = []
+    for item in batch:
+        window = item[0]
+        label = item[1]
+        data.append([window, label])
+    return data
+
+def batch_divder(vectors, batch_size = 20):
+    data = torch.utils.data.DataLoader(vectors,batch_size, collate_fn=spec_collate)
     return data
 
 

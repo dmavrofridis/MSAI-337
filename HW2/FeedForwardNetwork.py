@@ -3,18 +3,24 @@ from torch import nn
 import time
 
 class FeedForward(nn.Module):
-    def __init__(self, input_size, number_of_classes, embedding_space):
+    def __init__(self, window_size, number_of_classes, embedding_space, tie_weights=True):
         super(FeedForward, self).__init__()
-        self.Linear1 = nn.Linear(input_size, embedding_space)#for bug of words we use number of classes as an put
+        self.encode = nn.Embedding(number_of_classes, embedding_space)
+        self.Linear1 = nn.Linear(embedding_space, embedding_space)#for bug of words we use number of classes as an put
         self.activation = torch.nn.ReLU()
         self.Linear2 = nn.Linear(embedding_space, number_of_classes)
         self.softmax = torch.nn.Softmax()
 
-    def forward(self, x):
-        x = self.activation(self.Linear1(x))
-        x = self.Linear2(x)
+        if tie_weights:
+            self.Linear2.weight = self.encode.weight
 
-        return x
+    def forward(self, x):
+        #print("Current x:", x)
+        embeds = self.encode(x) #.view((1,-1))
+        out = self.activation(self.Linear1(embeds))
+        out = self.Linear2(out)
+
+        return out
 '''
     def init_weights(self):
         initrange = 0.1

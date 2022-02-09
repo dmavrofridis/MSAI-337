@@ -28,14 +28,14 @@ def splitting_tokens(text):
         corpus.append(splitted_lines)
     return corpus
 
-def lists_to_tokens(text):
+def lists_from_tokens(text):
     tokens =[]
     for line in text:
         for word in line:
             if word != '':
                 tokens.append(word)
     return tokens
-def to_number(text):
+def convert_numbers(text):
     for i in range(len(text)):
         # print(text[i])
         text[i] = re.sub(r'^([0-9]{4})', '<date>', text[i])
