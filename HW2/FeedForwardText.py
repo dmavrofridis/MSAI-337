@@ -30,17 +30,20 @@ def train(dataloader, model, optimizer, loss_fn, num_epochs = 20):
     for i in range(num_epochs):
         for index, batch in enumerate(dataloader):
 
-            labels = []
-            data = []
-            for group in batch:
+            # labels = []
+            # data = []
+            # for group in batch:
+            #
+            #     X,y = group
+            #     labels.append(y)
+            #     data.append(X)
+            #
+            #
+            # input = torch.tensor(data)
+            # labels = torch.tensor(labels)
+            input, labels = batch
 
-                X,y = group
-                labels.append(y)
-                data.append(X)
-
-
-            input = torch.tensor(data)
-            labels = torch.tensor(labels)
+            # print(input, labels)
 
             optimizer.zero_grad()
             predictions = model(input)

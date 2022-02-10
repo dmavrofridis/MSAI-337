@@ -145,8 +145,20 @@ def spec_collate(batch):
         data.append([window, label])
     return data
 
+def spec_collate_reborn(batch):
+    label_lst = []
+    data_lst  = []
+    for item in batch:
+        data_lst.append(item[0])
+        label_lst.append(item[1])
+    label = torch.LongTensor(label_lst)
+    data = torch.IntTensor(data_lst)
+
+
+    return [data, label]
+
 def batch_divder(vectors, batch_size = 20):
-    data = torch.utils.data.DataLoader(vectors,batch_size, collate_fn=spec_collate)
+    data = torch.utils.data.DataLoader(vectors,batch_size, collate_fn=spec_collate_reborn)
     return data
 
 
