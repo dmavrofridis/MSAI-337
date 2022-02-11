@@ -11,7 +11,7 @@ def unique_words(text):
 
 def create_integers(text):
     words_integers = {}
-    current = 1
+    current = 0
     for word in text:
         if word not in words_integers:
             words_integers[word] = current
@@ -22,7 +22,10 @@ def create_integers(text):
 def words_to_integers(text,mapping):
     final =[]
     for word in text:
+        if word not in mapping:
+            word = '<unk>'
         final.append(mapping[word])
+
     return final
 
 
@@ -81,10 +84,10 @@ class wikiDataset(torch.utils.data.Dataset):
     def __len__(self):
         return len(self.data)
     def __getitem__(self, idx):
-        sample = torch.Tensor(self.data[idx])
-        label = torch.Tensor(self.labels[idx])
+        sample = torch.Tensor(self.data[idx]).long()
+        label = torch.Tensor(self.labels[idx]).long()
 
-        label = int(torch.argmax(label)+1)
+        label = (torch.argmax(label).long())
 
         return sample, label
 
@@ -106,7 +109,7 @@ class wikiDatasetBagOfWords(torch.utils.data.Dataset):
 
         label = torch.Tensor(self.labels[idx])
 
-        label = torch.argmax(label)+1
+        label = torch.argmax(label)
         return X, label
 
 
