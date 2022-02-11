@@ -29,7 +29,7 @@ def main():
     print(labels_to_vectors[0])
     # dataset =  dataloader.wikiDatasetBagOfWords( slised_integers, labels_to_vectors, reverse_mapping, one_hot_dic)
     dataset = dataloader.wikiDataset(sliced_integers, labels_to_vectors)
-    dataset_with_batch = dataloader.batch_divder(dataset, batch_size=20)
+    dataset_with_batch = dataloader.batch_divider(dataset, batch_size=20)
 
     # Creating the NET
     net = FeedForwardNetwork.FeedForward(input_size=5, number_of_classes=27597, embedding_space=100)
@@ -46,7 +46,7 @@ def main():
     validation_sliced_integers = validation_sliced_integers[:-1]
     validation_labels_to_vectors = dataloader.integers_to_vectors(validation_labels, reverse_mapping, one_hot_dic)
     val_dataset = dataloader.wikiDataset(validation_sliced_integers, validation_labels_to_vectors)
-    val_datasett = dataloader.batch_divder(val_dataset, batch_size=20)
+    val_datasett = dataloader.batch_divider(val_dataset, batch_size=20)
     # Run the Model
     FeedForwardNetwork.train(dataset_with_batch, net, optimizer, criterion, val_datasett, 20)
 
