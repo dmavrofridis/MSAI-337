@@ -5,8 +5,9 @@ import FeedForwardNetwork
 import torch.optim as optim
 import torch.nn as nn
 import numpy as np
+import LSTM
 
-def main():
+def preprocess():
     start = time.time()
     preprocessing.setup_nltk()
     text = preprocessing.load_text('wiki.train.txt')
@@ -17,27 +18,27 @@ def main():
     text = preprocessing.to_number(text)
     unique_n = dataloader.unique_words(text)
     print('unique_words----->' + str( unique_n))
+    criterion = nn.CrossEntropyLoss()
 
     mapping = dataloader.create_integers(text)
     reverse_mapping = {i:k for k,i in mapping.items()}
-    integers_texts = dataloader.words_to_integers(text, mapping)# This is X
-    slised_integers = dataloader.sliding_window(integers_texts, 5)
-    slised_integers = slised_integers[:-1] #you cannot predict the final one
-
-    labels = dataloader.label_generation(integers_texts)
-    print('length_of_input_feature----->' + str( len(slised_integers)))
-    print('length_of_target_variables----->' + str( len(labels )))
-
+    integers_texts = dataloader.words_to_integers(text, mapping)
+    slised_integers = dataloader.sliding_window(integers_texts, 30)
+    slised_integers = slised_integers[:-1]
     one_hot_dic = dataloader.create_one_hot_encoddings(text, unique_n)
+
+    labels = dataloader.label_generation_RNN(integers_texts, 30)
     labels_to_vectors = dataloader.integers_to_vectors(labels, reverse_mapping, one_hot_dic)
-    print(labels_to_vectors[0])
-    #dataset =  dataloader.wikiDatasetBagOfWords( slised_integers, labels_to_vectors, reverse_mapping, one_hot_dic)
-    dataset =  dataloader.wikiDataset( slised_integers, labels_to_vectors)
+    dataset =  dataloader.wikiDataset(slised_integers, labels_to_vectors)
     dataset_with_batch = dataloader.batch_divder(dataset, batch_size=20)
-    net = FeedForwardNetwork.FeedForward(input_size=5, number_of_classes= 27597, embedding_space=100)
-   # net = FeedForwardNetwork.FeedForwardText(vocab_size=27597, embedding_size=100)
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(net.parameters(), lr=0.01)
+    net = FeedForwardNetwork.FeedForward(input_size=30, number_of_classes= 27597, embedding_space=100, window_size=30)
+    lstm = LSTM.Module()
+    optimizer = optim.Adam(lstm.parameters(), lr=0.001)
+
+
+
+
+    #net = FeedForwardNetwork.FeedForwardText(vocab_size=27597, embedding_size=100)
 
 
     # preprocess_validatio_and_test
@@ -49,63 +50,19 @@ def main():
 
     validation = preprocessing.to_number(validation)
     validation = dataloader.words_to_integers(validation, mapping)
-    validatiion_labels = dataloader.label_generation(validation)
-    print('validation_labels_length-------> ' + str(len(validatiion_labels)))
-    validatiion_slised_integers = dataloader.sliding_window(validation, 5)
+    validatiion_labels = dataloader.label_generation_RNN(validation, 30)
+    #print('validation_labels_length-------> ' + str(len(validatiion_labels)))
+    validatiion_slised_integers = dataloader.sliding_window(validation, 30)
     validatiions_slised_integers = validatiion_slised_integers[:-1]
-
     validation_labels_to_vectors = dataloader.integers_to_vectors(validatiion_labels, reverse_mapping, one_hot_dic)
     val_dataset = dataloader.wikiDataset(validatiion_slised_integers, validation_labels_to_vectors)
     val_datasett = dataloader.batch_divder(val_dataset, batch_size=20)
-    FeedForwardNetwork.train(dataset_with_batch, net, optimizer, criterion,  val_datasett, 20)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    #print('number_of_all_words ------> ' + str(dataloader.overall_words(text)))
-   # print('number_of_unique_words ---> '+ str(dataloader.unique_words(text)))
-   # one_hot_representation = dataloader.map_words_to_vec(text, one_hot_dic)
-
-    #vectorized_tensors = [torch.LongTensor(vector) for vector in one_hot_representation]
-
-
-
+    #train_feedforward_network
+    #FeedForwardNetwork.train(dataset_with_batch, net, optimizer, criterion,  val_datasett, 2)
     end = time.time() - start
+    LSTM.train(lstm, dataset_with_batch, optimizer, criterion,  val_datasett)
+
     print(end)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

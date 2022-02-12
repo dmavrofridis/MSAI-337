@@ -4,10 +4,10 @@ import time
 import numpy as np
 
 class FeedForward(nn.Module):
-    def __init__(self, input_size, number_of_classes, embedding_space):
+    def __init__(self, input_size, number_of_classes, embedding_space, window_size = 5):
         super(FeedForward, self).__init__()
         self.embed = nn.Embedding(27597, 100)
-        self.Linear1 = nn.Linear(100*5, embedding_space)
+        self.Linear1 = nn.Linear(100*window_size, embedding_space)
         self.batchNorm = nn.BatchNorm1d(100)
         self.activation = torch.nn.ReLU()
         self.Linear2 = nn.Linear(embedding_space, number_of_classes)

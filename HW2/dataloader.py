@@ -72,7 +72,12 @@ def label_generation(integer_list):
             labels.append(integer_list[i])
     return labels
 
-
+def label_generation_RNN(integer_list, window = 5):
+    labels =[]
+    for i in range(len(integer_list)):
+        if i >=window:
+            labels.append(integer_list[i])
+    return labels
 
 
 
@@ -125,6 +130,7 @@ def integers_to_vectors(integers, reverse_mapping, one_hot_vectors):
         vec = one_hot_vectors[word]
         res.append(vec)
     return res
+
 
 
 
