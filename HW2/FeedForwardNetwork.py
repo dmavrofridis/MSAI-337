@@ -23,8 +23,8 @@ class FeedForward(nn.Module):
         return x
 
     def init_weights(self):
-        initrange = 0.1
-        self.Linear1 = self.Linear1(-initrange, initrange)
+        init_range = 0.1
+        self.Linear1 = self.Linear1(-init_range, init_range)
 
 
 class FeedForwardText(nn.Module):
