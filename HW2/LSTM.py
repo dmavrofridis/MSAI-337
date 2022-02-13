@@ -58,7 +58,7 @@ def train(model, dataloader, optimizer, criterion,  validation_dataloader, epoch
             if i % 100 == 0:
                 print(i)
                 print('mean_loss---------->'+' '+ str(np.mean(losses)))
-                if np.mean(losses) <5:
+                if np.mean(losses) <4.9:
                     break
                 losses = []
 
