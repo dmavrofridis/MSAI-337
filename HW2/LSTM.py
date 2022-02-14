@@ -8,12 +8,14 @@ class Module(nn.Module):
         self.embedding = nn.Embedding(num_embeddings=vocab_size,
                                       embedding_dim=emb_dim)
         self.linear = nn.Linear(hid, hid)
-        self.linear2 = nn.Linear(hid, n_class)
+        self.linear2 = nn.Linear(hid, hid)
+        self.linear3 = nn.Linear(hid, n_class)
 
 
         self.batchNorm = nn.BatchNorm1d(30)
         self.batchNorm2 = nn.BatchNorm1d(hid)
-
+        self.dropout = nn.Dropout(0.1)
+        self.leaky_relu = nn.LeakyReLU()
         self.hid = hid
         self.lstm = nn.LSTM(emb_dim, hid, num_layers, dropout=dropout, batch_first=True)
         self.n_class = n_class
@@ -21,6 +23,7 @@ class Module(nn.Module):
         initrange = 0.1
         self.linear1 =self.Linear(-initrange, initrange)
         self.linear2 =self.Linear(-initrange, initrange)
+        self.linear3 =self.Linear(-initrange, initrange)
 
     def forward(self, seqs):
         batch_size, max_len = seqs.shape
@@ -29,7 +32,8 @@ class Module(nn.Module):
         embs = self.batchNorm(embs)
         output, (hidden, c) = self.lstm(embs)
         output = self.linear(self.batchNorm2(output[:, -1, :]))
-        output = self.linear2(output)
+        output = self.leaky_relu( self.dropout(self.linear2(output)))
+        output = self.linear3(output)
         return torch.log_softmax(output, dim=1)
     
 def train(model, dataloader, optimizer, criterion,  validation_dataloader, epoch = 1,):
