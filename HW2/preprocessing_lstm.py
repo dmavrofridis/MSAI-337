@@ -7,10 +7,10 @@ import torch.nn as nn
 import numpy as np
 import LSTM
 
-def main():
+def preprocess_train(name = 'wiki.train.txt'):
     start = time.time()
     preprocessing.setup_nltk()
-    text = preprocessing.load_text('wiki.train.txt')
+    text = preprocessing.load_text(name)
     text = preprocessing.string_to_lower(text)
     text = preprocessing.splitting_tokens(text)
     text = preprocessing.lists_to_tokens(text)
@@ -31,17 +31,36 @@ def main():
     labels_to_vectors = dataloader.integers_to_vectors(labels, reverse_mapping, one_hot_dic)
     dataset =  dataloader.wikiDataset(slised_integers, labels_to_vectors)
     dataset_with_batch = dataloader.batch_divder(dataset, batch_size=20)
-    net = FeedForwardNetwork.FeedForward(input_size=30, number_of_classes= 27597, embedding_space=100, window_size=30)
-    lstm = LSTM.Module()
-    optimizer = optim.Adam(lstm.parameters(), lr=0.001)
+    return dataset_with_batch
 
+
+
+    net = FeedForwardNetwork.FeedForward(input_size=30, number_of_classes= 27597, embedding_space=100, window_size=30)
 
 
 
     #net = FeedForwardNetwork.FeedForwardText(vocab_size=27597, embedding_size=100)
 
 
-    # preprocess_validatio_and_test
+def preproces_valid_test(name='wiki.valid.txt'):
+    start = time.time()
+    preprocessing.setup_nltk()
+    text = preprocessing.load_text('wiki.train.txt')
+    text = preprocessing.string_to_lower(text)
+    text = preprocessing.splitting_tokens(text)
+    text = preprocessing.lists_to_tokens(text)
+    #text = preprocessing.remove_stopwords(text)
+    text = preprocessing.to_number(text)
+    unique_n = dataloader.unique_words(text)
+    print('unique_words----->' + str( unique_n))
+    criterion = nn.CrossEntropyLoss()
+
+    mapping = dataloader.create_integers(text)
+    reverse_mapping = {i:k for k,i in mapping.items()}
+    integers_texts = dataloader.words_to_integers(text, mapping)
+    slised_integers = dataloader.sliding_window(integers_texts, 30)
+    slised_integers = slised_integers[:-1]
+    one_hot_dic = dataloader.create_one_hot_encoddings(text, unique_n)
     validation = preprocessing.load_text('wiki.valid.txt')
     validation = preprocessing.string_to_lower(validation)
 
@@ -56,15 +75,17 @@ def main():
     validatiions_slised_integers = validatiion_slised_integers[:-1]
     validation_labels_to_vectors = dataloader.integers_to_vectors(validatiion_labels, reverse_mapping, one_hot_dic)
     val_dataset = dataloader.wikiDataset(validatiion_slised_integers, validation_labels_to_vectors)
-    val_datasett = dataloader.batch_divder(val_dataset, batch_size=20)
+    val_dataset = dataloader.batch_divder(val_dataset, batch_size=20)
+    return val_dataset
     #train_feedforward_network
     #FeedForwardNetwork.train(dataset_with_batch, net, optimizer, criterion,  val_datasett, 2)
-    end = time.time() - start
-    LSTM.train(lstm, dataset_with_batch, optimizer, criterion,  val_datasett)
 
-    print(end)
+def run_lstm(train_dataset, valid_dataset):
+    lstm = LSTM.Module()
+    criterion = nn.CrossEntropyLoss()
+
+    optimizer = optim.Adam(lstm.parameters(), lr=0.001)
+    LSTM.train(lstm, train_dataset, optimizer, criterion,  valid_dataset)
 
 
 
-if __name__ =='__main__':
-    main()

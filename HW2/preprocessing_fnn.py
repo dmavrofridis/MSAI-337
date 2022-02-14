@@ -36,7 +36,7 @@ def preprocess_train_data_FNN(name = 'wiki.train.txt'):
     return dataset_with_batch
 def preprocess_val_train_data(name ='wiki.valid.txt'):
     preprocessing.setup_nltk()
-    text = preprocessing.load_text(name)
+    text = preprocessing.load_text('wiki.train.txt')
     text = preprocessing.string_to_lower(text)
     text = preprocessing.splitting_tokens(text)
     text = preprocessing.lists_to_tokens(text)
@@ -88,29 +88,6 @@ def run_feed_forward(dataset_with_batch, val_dataset):
 
     #net = FeedForwardNetwork.FeedForwardText(vocab_size=27597, embedding_size=100)
 
-
-
-
-    text = preprocessing.load_text('wiki.train.txt')
-    text = preprocessing.string_to_lower(text)
-    text = preprocessing.splitting_tokens(text)
-    text = preprocessing.lists_to_tokens(text)
-    #text = preprocessing.remove_stopwords(text)
-    text = preprocessing.to_number(text)
-    unique_n = dataloader.unique_words(text)
-    print('unique_words----->' + str( unique_n))
-
-    mapping = dataloader.create_integers(text)
-    reverse_mapping = {i:k for k,i in mapping.items()}
-    integers_texts = dataloader.words_to_integers(text, mapping)
-    slised_integers = dataloader.sliding_window(integers_texts, 5)
-    slised_integers = slised_integers[:-1]
-    labels = dataloader.label_generation_RNN(integers_texts, 5)
-    labels_to_vectors = dataloader.integers_to_vectors(labels, reverse_mapping, one_hot_dic)
-    dataset =  dataloader.wikiDataset(slised_integers, labels_to_vectors)
-    dataset_with_batch = dataloader.batch_divder(dataset, batch_size=20)
-    net = FeedForwardNetwork.FeedForward(input_size=5, number_of_classes= 27597, embedding_space=100, window_size=5)
-    FeedForwardNetwork.train(dataset_with_batch, net, optimizer, criterion,  val_datasett, 2)
 
 
 
