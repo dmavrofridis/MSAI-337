@@ -7,7 +7,7 @@ import torch.nn as nn
 import numpy as np
 import LSTM
 
-def preprocess():
+def main():
     start = time.time()
     preprocessing.setup_nltk()
     text = preprocessing.load_text('wiki.train.txt')

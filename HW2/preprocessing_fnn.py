@@ -4,13 +4,12 @@ import time
 import FeedForwardNetwork
 import torch.optim as optim
 import torch.nn as nn
-import numpy as np
-import LSTM
 
-def main():
+
+def preprocess_train_data_FNN(name = 'wiki.train.txt'):
     start = time.time()
     preprocessing.setup_nltk()
-    text = preprocessing.load_text('wiki.train.txt')
+    text = preprocessing.load_text(name)
     text = preprocessing.string_to_lower(text)
     text = preprocessing.splitting_tokens(text)
     text = preprocessing.lists_to_tokens(text)
@@ -34,13 +33,32 @@ def main():
     #dataset =  dataloader.wikiDatasetBagOfWords( slised_integers, labels_to_vectors, reverse_mapping, one_hot_dic)
     dataset =  dataloader.wikiDataset( slised_integers, labels_to_vectors)
     dataset_with_batch = dataloader.batch_divder(dataset, batch_size=20)
-    net = FeedForwardNetwork.FeedForward(input_size=5, number_of_classes= 27597, embedding_space=100)
-    #net = FeedForwardNetwork.FeedForwardText(vocab_size=27597, embedding_size=100)
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(net.parameters(), lr=0.01)
+    return dataset_with_batch
+def preprocess_val_train_data(name ='wiki.valid.txt'):
+    preprocessing.setup_nltk()
+    text = preprocessing.load_text(name)
+    text = preprocessing.string_to_lower(text)
+    text = preprocessing.splitting_tokens(text)
+    text = preprocessing.lists_to_tokens(text)
+    # text = preprocessing.remove_stopwords(text)
+    text = preprocessing.to_number(text)
+    unique_n = dataloader.unique_words(text)
+    mapping = dataloader.create_integers(text)
+    reverse_mapping = {i: k for k, i in mapping.items()}
+    integers_texts = dataloader.words_to_integers(text, mapping)
+    slised_integers = dataloader.sliding_window(integers_texts, 5)
+    slised_integers = slised_integers[:-1]  # you cannot predict the final one
+
+    labels = dataloader.label_generation(integers_texts)
+    #   print('length_of_input_feature----->' + str( len(slised_integers)))
+    # print('length_of_target_variables----->' + str( len(labels )))
+
+    one_hot_dic = dataloader.create_one_hot_encoddings(text, unique_n)
+
+
 
     # preprocess_validatio_and_test
-    validation = preprocessing.load_text('wiki.valid.txt')
+    validation = preprocessing.load_text(name)
     validation = preprocessing.string_to_lower(validation)
 
     validation = preprocessing.splitting_tokens(validation)
@@ -51,17 +69,24 @@ def main():
     validatiion_labels = dataloader.label_generation(validation)
     #print('validation_labels_length-------> ' + str(len(validatiion_labels)))
     validatiion_slised_integers = dataloader.sliding_window(validation, 5)
-    validatiions_slised_integers = validatiion_slised_integers[:-1]
+    validatiion_slised_integers = validatiion_slised_integers[:-1]
     validation_labels_to_vectors = dataloader.integers_to_vectors(validatiion_labels, reverse_mapping, one_hot_dic)
     val_dataset = dataloader.wikiDataset(validatiion_slised_integers, validation_labels_to_vectors)
     val_datasett = dataloader.batch_divder(val_dataset, batch_size=20)
+    return val_datasett
     #train_feedforward_network
-    FeedForwardNetwork.train(dataset_with_batch, net, optimizer, criterion,  val_datasett, 2)
-    # Here wwe preprocess LSTM
+
+
+def run_feed_forward(dataset_with_batch, val_dataset):
+    criterion = nn.CrossEntropyLoss()
+    net = FeedForwardNetwork.FeedForward(input_size=5, number_of_classes=27597, embedding_space=100)
+    optimizer = optim.Adam(net.parameters(), lr=0.01)
+    FeedForwardNetwork.train(dataset_with_batch, net, optimizer, criterion,  val_dataset, 2)
 
 
 
 
+    #net = FeedForwardNetwork.FeedForwardText(vocab_size=27597, embedding_size=100)
 
 
 

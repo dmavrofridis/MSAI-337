@@ -32,7 +32,6 @@ class Module(nn.Module):
         output = self.linear2(output)
         return torch.log_softmax(output, dim=1)
     
-    
 def train(model, dataloader, optimizer, criterion,  validation_dataloader, epoch = 1,):
 
     running_loss = 0

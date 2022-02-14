@@ -98,3 +98,4 @@ def train(dataloader, model, optimizer, criterion, validation_dataloader,epoch =
 
 
     print('Finished Training')
+
