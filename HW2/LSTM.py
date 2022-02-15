@@ -5,15 +5,17 @@ import numpy as np
 
 
 class Module(nn.Module):
-    def __init__(self, vocab_size=27597, n_class=27597, emb_dim=100, hid=50, num_layers=1, dropout=0.2):
+    def __init__(self, vocab_size=27597, n_class=27597, emb_dim=100, hid=100, num_layers=2, dropout=0.2):
         super(Module, self).__init__()
         self.embedding = nn.Embedding(num_embeddings=vocab_size,
                                       embedding_dim=emb_dim)
-        self.linear = nn.Linear(hid, hid)
+        self.linear1 = nn.Linear(hid, hid)
         self.linear2 = nn.Linear(hid, n_class)
+
 
         self.batchNorm = nn.BatchNorm1d(30)
         self.batchNorm2 = nn.BatchNorm1d(hid)
+        self.dropout = nn.Dropout(0.1)
 
         self.hid = hid
         self.lstm = nn.LSTM(emb_dim, hid, num_layers, dropout=dropout, batch_first=True)
@@ -21,6 +23,7 @@ class Module(nn.Module):
 
     def init_weights(self):
         initrange = 0.1
+        self.embedding = nn.Embedding(-initrangem, initrange)
         self.linear1 = self.Linear(-initrange, initrange)
         self.linear2 = self.Linear(-initrange, initrange)
 
@@ -30,7 +33,7 @@ class Module(nn.Module):
 
         embs = self.batchNorm(embs)
         output, (hidden, c) = self.lstm(embs)
-        output = self.linear(self.batchNorm2(output[:, -1, :]))
+        output = self.linear1( self.batchNorm2(output[:, -1, :]))
         output = self.linear2(output)
         return torch.log_softmax(output, dim=1)
 
@@ -49,6 +52,7 @@ def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch=
             X, y = data
             optimizer.zero_grad()
             predictions = model(X)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 100)
             loss = criterion(predictions, y)
             losses.append(loss.item())
 
@@ -59,7 +63,7 @@ def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch=
             if i % 100 == 0:
                 print(i)
                 print('mean_loss---------->' + ' ' + str(np.mean(losses)))
-                if np.mean(losses) < 4.9:
+                if np.mean(losses) < 4.8:
                     break
                 losses = []
 

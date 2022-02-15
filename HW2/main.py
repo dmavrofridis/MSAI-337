@@ -23,4 +23,4 @@ def main(lstm=True):  # if false then run FeedFoward
 
 
 if __name__ == '__main__':
-    main(lstm=False)
+    main(lstm=True)
