@@ -65,7 +65,7 @@ def pre_process_val_train_data(name='wiki.valid.txt', is_LSTM=False):
     return val_datasett
 
 
-def run_nn_model(train_dataset, val_dataset, is_LSTM=False):
+def run_nn_model(train_dataset, val_dataset, is_LSTM=False, custom_loss=False, epoch = 2):
     if is_LSTM:
         lstm = LSTM.Module()
         criterion = nn.CrossEntropyLoss()
@@ -75,7 +75,7 @@ def run_nn_model(train_dataset, val_dataset, is_LSTM=False):
         criterion = nn.CrossEntropyLoss()
         net = FeedForwardNetwork.FeedForward(input_size=5, number_of_classes=27597, embedding_space=100)
         optimizer = optim.Adam(net.parameters(), lr=0.01)
-        FeedForwardNetwork.train(train_dataset, net, optimizer, criterion, val_dataset, 2)
+        FeedForwardNetwork.train(train_dataset, net, optimizer, criterion, val_dataset, custom_loss= False, epoch=2)
 
 
 def setup_nltk():

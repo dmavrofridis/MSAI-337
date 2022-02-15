@@ -2,8 +2,20 @@ import torch.nn
 from torch import nn
 import time
 import numpy as np
+from global_variables import *
 
-
+def softmax(x):
+    exp_x = torch.exp(x)
+    sum_x = torch.sum(exp_x, dim=1, keepdim=True)
+    return exp_x / sum_x
+def log_softmax(x):
+    return x - torch.logsumexp(x,dim=1, keepdim=True)
+def custom_cross(outputs, targets):
+    num_examples = targets.shape[0]
+    batch_size = outputs.shape[0]
+    outputs = log_softmax(outputs)
+    outputs = outputs[range(batch_size), targets]
+    return - torch.sum(outputs) / num_examples
 class FeedForward(nn.Module):
     def __init__(self, input_size, number_of_classes, embedding_space, window_size=5):
         super(FeedForward, self).__init__()
@@ -46,7 +58,7 @@ class FeedForwardText(nn.Module):
         return out
 
 
-def train(dataloader, model, optimizer, criterion, validation_dataloader, epoch=2):
+def train(dataloader, model, optimizer, criterion, validation_dataloader, custom_loss = True, epoch=2):
     running_loss = 0
     accuracy = 0
     model.train()
@@ -60,7 +72,10 @@ def train(dataloader, model, optimizer, criterion, validation_dataloader, epoch=
             X, y = data
             optimizer.zero_grad()
             predictions = model(X)
-            loss = criterion(predictions, y)
+            if custom_loss == False:
+                loss = criterion(predictions, y)
+            else:
+                loss = custom_cross(predictions, y)
             losses.append(loss.item())
             loss.backward()
             optimizer.step()
