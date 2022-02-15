@@ -3,7 +3,7 @@ from torch import nn
 import time
 import numpy as np
 from global_variables import *
-
+import matplotlib.pyplot as plt
 def softmax(x):
     exp_x = torch.exp(x)
     sum_x = torch.sum(exp_x, dim=1, keepdim=True)
@@ -17,11 +17,11 @@ def custom_cross(outputs, targets):
     outputs = outputs[range(batch_size), targets]
     return - torch.sum(outputs) / num_examples
 class FeedForward(nn.Module):
-    def __init__(self, input_size, number_of_classes, embedding_space, window_size=5):
+    def __init__(self, input_size= 27597, number_of_classes =27597, embedding_space = 100, window_size=5):
         super(FeedForward, self).__init__()
-        self.embed = nn.Embedding(27597, 100)
-        self.Linear1 = nn.Linear(100 * window_size, embedding_space)
-        self.batchNorm = nn.BatchNorm1d(100)
+        self.embed = nn.Embedding(number_of_classes, embedding_space)
+        self.Linear1 = nn.Linear(embedding_space * window_size, embedding_space)
+        self.batchNorm = nn.BatchNorm1d(embedding_space)
         self.activation = torch.nn.ReLU()
         self.Linear2 = nn.Linear(embedding_space, number_of_classes)
         self.softmax = torch.nn.Softmax()
@@ -37,6 +37,9 @@ class FeedForward(nn.Module):
     def init_weights(self):
         initrange = 0.1
         self.Linear1 = self.Linear1(-initrange, initrange)
+        self.Linear2 = self.Linear2(-initrange, initrange)
+
+
 
 
 class FeedForwardText(nn.Module):
@@ -58,15 +61,17 @@ class FeedForwardText(nn.Module):
         return out
 
 
-def train(dataloader, model, optimizer, criterion, validation_dataloader, custom_loss = True, epoch=2):
+def train(dataloader, model, optimizer, criterion, validation_dataloader, custom_loss = True, epoch=1):
     running_loss = 0
     accuracy = 0
     model.train()
     samples = 0
     trainAcc = 0
     losses = []
-
-    for epoch in range(epoch):
+    batches =[]
+    losses_to_visualize =[]
+    acc =[]
+    for ep in range(epoch):
         for index, data in enumerate(dataloader):
 
             X, y = data
@@ -81,30 +86,59 @@ def train(dataloader, model, optimizer, criterion, validation_dataloader, custom
             optimizer.step()
 
             if index % 1000 == 0:
-                print(index)
+                losses_to_visualize.append(loss.item())
+                print(len( losses_to_visualize))
+                batches.append(index)
+
+                trainAcc += (predictions.max(1)[1] == y).sum().item()
+                samples += y.size(0)
+                acc.append(trainAcc / samples )
                 print('mean_loss---------->' + ' ' + str(np.mean(losses)))
-                if np.mean(losses) < 6.8:
+                if np.mean(losses) < 7:
                     break
-                losses = []
-                running_loss = 0.0
 
-            trainAcc += (predictions.max(1)[1] == y).sum().item()
-            samples += y.size(0)
+    print(losses_to_visualize)
 
+    plt.figure(figsize = (15,15))
+    plt.plot(losses_to_visualize)
+    plt.show()
+    plt.plot(trainAcc)
+    plt.show( )
+    print(acc)
+    print('perplexity--------------->'+ ' ' + str(np.exp((loss.item()))))
+
+    batches = []
+    losses_to_visualize = []
     total = 0
     correct = 0
+    accuracy =[]
     with torch.no_grad():
         for i, data in enumerate(validation_dataloader):
             if i > 10000:
                 break
+            batches.append(i)
+
             X, y = data
             predictions = model(X)
             _, predicted = torch.max(predictions.data, 1)
+            loss = criterion(predictions, y)
             total += y.size(0)
             correct += (predicted == y).sum().item()
+
+
             if i % 1000 == 999:
                 print('validation_accuracy------------->' + str(100 * correct // total))
 
-        print('validation_accuracy-FINAL---------------->' + str(100 * correct // total))
+                accuracy.append(100 * correct // total)
 
+        print('validation_accuracy-FINAL---------------->' + str(100 * correct // total))
     print('Finished Training')
+    losses_to_visualize.append(loss.item())
+
+    print( accuracy)
+
+    plt.plot(losses_to_visualize)
+    plt.show()
+    plt.plot(trainAcc)
+    plt.show( )
+    print('perplexity--------------->' + ' ' + str(np.exp((loss.item()))))

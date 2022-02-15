@@ -21,6 +21,9 @@ class Module(nn.Module):
         self.lstm = nn.LSTM(emb_dim, hid, num_layers, dropout=dropout, batch_first=True)
         self.n_class = n_class
 
+        #self.linear2.weight = self.embedding.weight.T
+
+
     def init_weights(self):
         initrange = 0.1
         self.embedding = nn.Embedding(-initrangem, initrange)
@@ -45,6 +48,9 @@ def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch=
     samples = 0
     trainAcc = 0
     losses = []
+    batches =[]
+    losses_to_visualize =[]
+
 
     for i in range(epoch):
         for i, data in enumerate(dataloader):
@@ -55,6 +61,8 @@ def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch=
             torch.nn.utils.clip_grad_norm_(model.parameters(), 100)
             loss = criterion(predictions, y)
             losses.append(loss.item())
+            losses_to_visualize.append(loss.item())
+
 
             loss.backward()
 
@@ -71,6 +79,17 @@ def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch=
             trainAcc += (predictions.max(1)[1] == y).sum().item()
             samples += y.size(0)
 
+    plt.figure(figsize = (15,15))
+    plt.plot(batches, losses_to_visualize)
+    plt.plot(batches, accuracy)
+    print('perplexity--------------->'+ ' ' + str(losses_to_visualize(loss)))
+
+
+    batches = []
+    losses_to_visualize = []
+    total = 0
+    correct = 0
+
     total = 0
     correct = 0
     with torch.no_grad():
@@ -79,6 +98,7 @@ def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch=
                 break
             X, y = data
             predictions = model(X)
+            losses_to_visualize.append(loss.item())
             _, predicted = torch.max(predictions.data, 1)
             total += y.size(0)
             correct += (predicted == y).sum().item()
@@ -86,3 +106,9 @@ def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch=
                 print('validation_accuracy------------->' + str(100 * correct // total))
 
         print('validation_accuracy-FINAL---------------->' + str(100 * correct // total))
+
+    plt.plot(batches, accuracy)
+    plt.show
+    plt.plot(batches, losses_to_visualize)
+    plt.show()
+    print('perplexity--------------->'+ ' ' + str(losses_to_visualize(loss)))

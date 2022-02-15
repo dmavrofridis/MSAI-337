@@ -43,7 +43,6 @@ def pre_process_val_train_data(name='wiki.valid.txt', is_LSTM=False):
     setup_nltk()
     text = to_number(lists_to_tokens(splitting_tokens(string_to_lower(load_text('wiki.train.txt')))))
     unique_n = unique_words(text)
-    print('unique_words----->' + str(unique_n))
     mapping = create_integers(text)
     reverse_mapping = {i: k for k, i in mapping.items()}
     integers_texts = words_to_integers(text, mapping)
@@ -75,7 +74,7 @@ def run_nn_model(train_dataset, val_dataset, is_LSTM=False, custom_loss=False, e
         criterion = nn.CrossEntropyLoss()
         net = FeedForwardNetwork.FeedForward(input_size=5, number_of_classes=27597, embedding_space=100)
         optimizer = optim.Adam(net.parameters(), lr=0.01)
-        FeedForwardNetwork.train(train_dataset, net, optimizer, criterion, val_dataset, custom_loss= False, epoch=2)
+        FeedForwardNetwork.train(train_dataset, net, optimizer, criterion, val_dataset, custom_loss= False, epoch=1)
 
 
 def setup_nltk():
