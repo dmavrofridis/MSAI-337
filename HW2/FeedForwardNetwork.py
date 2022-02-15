@@ -22,7 +22,7 @@ class FeedForward(nn.Module):
         self.embed = nn.Embedding(number_of_classes, embedding_space)
         self.Linear1 = nn.Linear(embedding_space * window_size, embedding_space)
         self.batchNorm = nn.BatchNorm1d(embedding_space)
-        self.activation = torch.nn.ReLU()
+        self.activation = torch.nn.Tanh()
         self.Linear2 = nn.Linear(embedding_space, number_of_classes)
         self.softmax = torch.nn.Softmax()
 
@@ -87,23 +87,32 @@ def train(dataloader, model, optimizer, criterion, validation_dataloader, custom
 
             if index % 1000 == 0:
                 losses_to_visualize.append(loss.item())
-                print(len( losses_to_visualize))
+                print(len(losses_to_visualize))
                 batches.append(index)
 
                 trainAcc += (predictions.max(1)[1] == y).sum().item()
                 samples += y.size(0)
                 acc.append(trainAcc / samples )
                 print('mean_loss---------->' + ' ' + str(np.mean(losses)))
-                if np.mean(losses) < 7:
+                if np.mean(losses) < 6:
                     break
 
     print(losses_to_visualize)
 
     plt.figure(figsize = (15,15))
     plt.plot(losses_to_visualize)
+    plt.ylabel("loss")
+    plt.xlabel("thousand batch")
     plt.show()
-    plt.plot(trainAcc)
-    plt.show( )
+    plt.plot(acc)
+    plt.ylabel("accuracy")
+    plt.xlabel("thousand batch")
+    plt.show()
+
+    plt.plot(np.exp(losses_to_visualize))
+    plt.ylabel("perplexity")
+    plt.xlabel("thousand batch")
+    plt.show()
     print(acc)
     print('perplexity--------------->'+ ' ' + str(np.exp((loss.item()))))
 
@@ -128,7 +137,7 @@ def train(dataloader, model, optimizer, criterion, validation_dataloader, custom
 
             if i % 1000 == 999:
                 print('validation_accuracy------------->' + str(100 * correct // total))
-
+                losses_to_visualize.append(loss.item())
                 accuracy.append(100 * correct // total)
 
         print('validation_accuracy-FINAL---------------->' + str(100 * correct // total))
@@ -138,7 +147,15 @@ def train(dataloader, model, optimizer, criterion, validation_dataloader, custom
     print( accuracy)
 
     plt.plot(losses_to_visualize)
+    plt.ylabel("loss")
+    plt.xlabel("thousand batch")
     plt.show()
-    plt.plot(trainAcc)
-    plt.show( )
+    plt.plot(accuracy)
+    plt.ylabel("accuracy")
+    plt.xlabel("thousand batch")
+    plt.show()
+    plt.plot(np.exp(losses_to_visualize))
+    plt.ylabel("perplexity")
+    plt.xlabel("thousand batch")
+    plt.show()
     print('perplexity--------------->' + ' ' + str(np.exp((loss.item()))))
