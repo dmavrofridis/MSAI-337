@@ -10,7 +10,7 @@ def main(is_LSTM=False, use_custom_loss=False):  # if false then run FeedFoward
 
     else:
         print("Training on a simple Feed Forward Neural Network Model")
-        dataset = 'wiki.test.txt'
+        dataset = 'wiki.valid.txt'
 
     train_dataset = pre_process_train_data(name='wiki.train.txt', is_LSTM=is_LSTM)
     valid_dataset = pre_process_val_train_data(name=dataset, is_LSTM=is_LSTM)
@@ -22,4 +22,4 @@ def main(is_LSTM=False, use_custom_loss=False):  # if false then run FeedFoward
 
 
 if __name__ == '__main__':
-    main(is_LSTM=True, use_custom_loss=False)
+    main(is_LSTM=False, use_custom_loss=False)

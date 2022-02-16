@@ -69,7 +69,7 @@ def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch=
                 if np.mean(losses_to_visualize) < 4.8:
                     break
                 losses = []
-            if i %1000 ==0 and i !=0:
+            if i %2000 ==0 and i !=0:
                 for j, data in enumerate(validation_dataloader):
 
                     total_valid = 0
