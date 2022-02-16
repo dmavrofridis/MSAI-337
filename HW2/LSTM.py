@@ -3,10 +3,10 @@ from matplotlib import pyplot as plt
 from torch import nn
 import numpy as np
 from preprocessing import *
-
+from global_variables import *
 
 class Module(nn.Module):
-    def __init__(self, vocab_size=27597, n_class=27597, emb_dim=100, hid=100, num_layers=2, dropout=0.2):
+    def __init__(self, vocab_size=NUNBER_OF_CLASSES, n_class=NUNBER_OF_CLASSES, emb_dim=EMBEDDING_SPACE, hid=EMBEDDING_SPACE, num_layers=2, dropout=0.2):
         super(Module, self).__init__()
         self.embedding = nn.Embedding(num_embeddings=vocab_size,
                                       embedding_dim=emb_dim)
@@ -49,6 +49,10 @@ def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch=
     losses = []
     batches = []
     losses_to_visualize = []
+    batches_valid = []
+    losses_to_visualize_valid = []
+    total_valid = 0
+    correct_valid = 0
 
     for i in range(epoch):
         for i, data in enumerate(dataloader):
@@ -75,18 +79,26 @@ def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch=
             trainAcc += (predictions.max(1)[1] == y).sum().item()
             samples += y.size(0)
 
+            if i < 10000:
+                X, y = data
+                predictions = model(X)
+                losses_to_visualize.append(loss.item())
+                _, predicted = torch.max(predictions.data, 1)
+                total += y.size(0)
+                correct += (predicted == y).sum().item()
+                if i % 1000 == 999:
+                    print('validation_accuracy------------->' + str(100 * correct // total))
+
+            print('validation_accuracy-FINAL---------------->' + str(100 * correct // total))
+
     plt.figure(figsize=(15, 15))
-    plt.plot(batches, losses_to_visualize)
-    plt.plot(batches, accuracy)
-    print('perplexity--------------->' + ' ' + str(losses_to_visualize(loss)))
+    plt.plot(losses_to_visualize)
+    plt.plot(accuracy)
+    print('perplexity--------------->' + ' ' + str(np.exp((loss.item()))))
 
-    batches = []
-    losses_to_visualize = []
-    total = 0
-    correct = 0
 
-    total = 0
-    correct = 0
+
+
     with torch.no_grad():
         for i, data in enumerate(validation_dataloader):
             if i > 10000:
@@ -102,8 +114,8 @@ def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch=
 
         print('validation_accuracy-FINAL---------------->' + str(100 * correct // total))
 
-    plt.plot(batches, accuracy)
+    plt.plot(accuracy)
     plt.show
-    plt.plot(batches, losses_to_visualize)
+    plt.plot(losses_to_visualize)
     plt.show()
-    print('perplexity--------------->' + ' ' + str(losses_to_visualize(loss)))
+    print('perplexity--------------->' + ' ' + str(np.exp((loss.item()))))
