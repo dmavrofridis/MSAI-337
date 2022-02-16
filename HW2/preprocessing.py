@@ -80,7 +80,7 @@ def run_nn_model(train_dataset, val_dataset, is_LSTM=False, epoch=1, use_custom_
         lstm = LSTM.Module()
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.Adam(lstm.parameters(), lr=0.001)
-        LSTM.train(lstm, train_dataset, optimizer, criterion, val_dataset, use_custom_loss)
+        LSTM.train(lstm, train_dataset, optimizer, criterion, val_dataset, epoch, use_custom_loss)
     else:
         criterion = nn.CrossEntropyLoss()
         net = FeedForwardNetwork.FeedForward(input_size=5, number_of_classes=27597, embedding_space=100)

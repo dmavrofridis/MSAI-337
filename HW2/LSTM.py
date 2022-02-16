@@ -40,7 +40,7 @@ class Module(nn.Module):
         return torch.log_softmax(output, dim=1)
 
 
-def train(model, dataloader, optimizer, criterion, validation_dataloader,  use_custom_loss=False):
+def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch = EPOCH_NUMBER,  use_custom_loss=False):
     accuracy = []
     model.train()
 
@@ -49,7 +49,7 @@ def train(model, dataloader, optimizer, criterion, validation_dataloader,  use_c
     losses_to_visualize_valid = []
 
 
-    for i in range(epoch):
+    for epoch in range(EPOCH_NUMBER):
         for i, data in enumerate(dataloader):
 
             X, y = data
@@ -65,11 +65,13 @@ def train(model, dataloader, optimizer, criterion, validation_dataloader,  use_c
             if i % 100 == 0:
                 losses_to_visualize.append(loss.item())
                 print(i)
-                print('mean_loss---------->' + ' ' + str(np.mean(losses_to_visualize)))
-                if np.mean(losses_to_visualize) < 4.8:
+                print('mean_loss---------->' + ' ' + str( loss.item()))
+                if loss.item()  < 4:# or i == 2000:
                     break
                 losses = []
-            if i %2000 ==0 and i !=0:
+
+        '''
+            if i %1000 ==0 and i !=0:
                 for j, data in enumerate(validation_dataloader):
 
                     total_valid = 0
@@ -83,16 +85,17 @@ def train(model, dataloader, optimizer, criterion, validation_dataloader,  use_c
                         total_valid += y.size(0)
                         correct_valid += (predicted == y).sum().item()
                         if j == 9000:
-                            print('validation_accuracy-FINAL---------------->' + str(100 * correct_valid// total_valid))
+                            print('validation_accuracy---------------->' + str(100 * correct_valid// total_valid))
                             accuracy.append(100 * correct_valid // total_valid)
                             losses_to_visualize_valid.append(loss_val.item())
-
+'''
     plt.figure(figsize=(15, 15))
+    print('perplexity--------------->' + ' ' + str(np.exp((loss.item()))))
+
     print('train_loss------>' + str(losses_to_visualize))
     print(plt.plot(losses_to_visualize))
     print(plt.plot(accuracy))
     print('accuracy------>' + str(accuracy))
-    print('perplexity--------------->' + ' ' + str(np.exp((loss.item()))))
     print('perplexity_second--------------->' + ' ' + str(np.exp((loss_val.item()))))
     print(plt.plot(losses_to_visualize_valid))
     print('validation_loss------>' + str(losses_to_visualize_valid))
