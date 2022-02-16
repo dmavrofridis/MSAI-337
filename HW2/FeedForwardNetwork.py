@@ -6,7 +6,6 @@ from preprocessing import *
 from global_variables import *
 import matplotlib.pyplot as plt
 
-
 class FeedForward(nn.Module):
     def __init__(self, input_size=27597, number_of_classes=27597, embedding_space=100, window_size=5):
         super(FeedForward, self).__init__()
@@ -50,97 +49,59 @@ class FeedForwardText(nn.Module):
         return out
 
 
-def train(dataloader, model, optimizer, criterion, validation_dataloader, epoch=1, use_custom_loss=False):
-    running_loss = 0
-    accuracy = 0
+def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch=1, use_custom_loss=False):
+    accuracy = []
     model.train()
-    samples = 0
-    trainAcc = 0
+
     losses = []
-    batches = []
     losses_to_visualize = []
-    acc = []
-    for ep in range(epoch):
-        for index, data in enumerate(dataloader):
+    losses_to_visualize_valid = []
+
+
+    for i in range(epoch):
+        for i, data in enumerate(dataloader):
 
             X, y = data
             optimizer.zero_grad()
             predictions = model(X)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 100)
             loss = custom_cross_entropy_loss(predictions, y) if use_custom_loss else criterion(predictions, y)
-            losses.append(loss.item())
+
             loss.backward()
+
             optimizer.step()
 
-            if index % 1000 == 0:
+            if i % 100 == 0:
                 losses_to_visualize.append(loss.item())
-                print(len(losses_to_visualize))
-                batches.append(index)
-
-                trainAcc += (predictions.max(1)[1] == y).sum().item()
-                samples += y.size(0)
-                acc.append(trainAcc / samples)
-                print('mean_loss---------->' + ' ' + str(np.mean(losses)))
-                if np.mean(losses) < 6:
+                print(i)
+                print('mean_loss---------->' + ' ' + str(np.mean(losses_to_visualize)))
+                if np.mean(losses_to_visualize) < 6.7:
                     break
+                losses = []
+            if i %1000 ==0 and i !=0:
+                for j, data in enumerate(validation_dataloader):
 
-    print(losses_to_visualize)
+                    total_valid = 0
+                    correct_valid = 0
+                    if j < 10000:
+                        X, y = data
+                        predictions = model(X)
+                        loss_val = criterion(predictions, y)
+
+                        losses_to_visualize_valid.append(loss_val.item())
+                        _, predicted = torch.max(predictions.data, 1)
+                        total_valid += y.size(0)
+                        correct_valid += (predicted == y).sum().item()
+                        if j == 10000:
+                            print('validation_accuracy-FINAL---------------->' + str(100 * correct_valid// total_valid))
+                            accuracy.append(100 * correct_valid // total_valid)
 
     plt.figure(figsize=(15, 15))
-    plt.plot(losses_to_visualize)
-    plt.ylabel("loss")
-    plt.xlabel("thousand batch")
-    plt.show()
-    plt.plot(acc)
-    plt.ylabel("accuracy")
-    plt.xlabel("thousand batch")
-    plt.show()
-
-    plt.plot(np.exp(losses_to_visualize))
-    plt.ylabel("perplexity")
-    plt.xlabel("thousand batch")
-    plt.show()
-    print(acc)
+    print('train_loss------>' + str(losses_to_visualize))
+    print(plt.plot(losses_to_visualize))
+    print(plt.plot(accuracy))
+    print('accuracy------>' + str(accuracy))
     print('perplexity--------------->' + ' ' + str(np.exp((loss.item()))))
-
-    batches = []
-    losses_to_visualize = []
-    total = 0
-    correct = 0
-    accuracy = []
-    with torch.no_grad():
-        for i, data in enumerate(validation_dataloader):
-            if i > 10000:
-                break
-            batches.append(i)
-
-            X, y = data
-            predictions = model(X)
-            _, predicted = torch.max(predictions.data, 1)
-            loss = criterion(predictions, y)
-            total += y.size(0)
-            correct += (predicted == y).sum().item()
-
-            if i % 1000 == 999:
-                print('validation_accuracy------------->' + str(100 * correct // total))
-                losses_to_visualize.append(loss.item())
-                accuracy.append(100 * correct // total)
-
-        print('validation_accuracy-FINAL---------------->' + str(100 * correct // total))
-    print('Finished Training')
-    losses_to_visualize.append(loss.item())
-
-    print(accuracy)
-
-    plt.plot(losses_to_visualize)
-    plt.ylabel("loss")
-    plt.xlabel("thousand batch")
-    plt.show()
-    plt.plot(accuracy)
-    plt.ylabel("accuracy")
-    plt.xlabel("thousand batch")
-    plt.show()
-    plt.plot(np.exp(losses_to_visualize))
-    plt.ylabel("perplexity")
-    plt.xlabel("thousand batch")
-    plt.show()
-    print('perplexity--------------->' + ' ' + str(np.exp((loss.item()))))
+    print('perplexity_second--------------->' + ' ' + str(np.exp((loss_val.item()))))
+    print(plt.plot(losses_to_visualize_valid))
+    print('validation_loss------>' + str(losses_to_visualize_valid))

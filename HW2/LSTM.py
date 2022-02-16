@@ -41,18 +41,14 @@ class Module(nn.Module):
 
 
 def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch=1, use_custom_loss=False):
-    running_loss = 0
-    accuracy = 0
+    accuracy = []
     model.train()
-    samples = 0
-    trainAcc = 0
+
     losses = []
     batches = []
     losses_to_visualize = []
-    batches_valid = []
     losses_to_visualize_valid = []
-    total_valid = 0
-    correct_valid = 0
+
 
     for i in range(epoch):
         for i, data in enumerate(dataloader):
@@ -62,60 +58,47 @@ def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch=
             predictions = model(X)
             torch.nn.utils.clip_grad_norm_(model.parameters(), 100)
             loss = custom_cross_entropy_loss(predictions, y) if use_custom_loss else criterion(predictions, y)
-            losses.append(loss.item())
-            losses_to_visualize.append(loss.item())
+
             loss.backward()
 
             optimizer.step()
 
             if i % 100 == 0:
+                losses.append(loss.item())
+                losses_to_visualize.append(loss.item())
                 print(i)
                 print('mean_loss---------->' + ' ' + str(np.mean(losses)))
                 if np.mean(losses) < 4.8:
                     break
                 losses = []
+            if i %2000 ==0 and i !=0:
+                for j, data in enumerate(validation_dataloader):
 
-                running_loss = 0.0
-            trainAcc += (predictions.max(1)[1] == y).sum().item()
-            samples += y.size(0)
+                    total_valid = 0
+                    correct_valid = 0
+                    if j < 10000:
+                        X, y = data
+                        predictions = model(X)
+                        loss_val = criterion(predictions, y)
 
-            if i < 10000:
-                X, y = data
-                predictions = model(X)
-                losses_to_visualize.append(loss.item())
-                _, predicted = torch.max(predictions.data, 1)
-                total += y.size(0)
-                correct += (predicted == y).sum().item()
-                if i % 1000 == 999:
-                    print('validation_accuracy------------->' + str(100 * correct // total))
-
-            print('validation_accuracy-FINAL---------------->' + str(100 * correct // total))
+                        losses_to_visualize_valid.append(loss_val.item())
+                        _, predicted = torch.max(predictions.data, 1)
+                        total_valid += y.size(0)
+                        correct_valid += (predicted == y).sum().item()
+                        if j == 10000:
+                            print('validation_accuracy-FINAL---------------->' + str(100 * correct_valid// total_valid))
+                            accuracy.append(100 * correct_valid // total_valid)
 
     plt.figure(figsize=(15, 15))
-    plt.plot(losses_to_visualize)
-    plt.plot(accuracy)
+    print('train_loss------>' + str(losses_to_visualize))
+    print(plt.plot(losses_to_visualize))
+    print(plt.plot(accuracy))
+    print('accuracy------>' + str(accuracy))
     print('perplexity--------------->' + ' ' + str(np.exp((loss.item()))))
+    print('perplexity_second--------------->' + ' ' + str(np.exp((loss_val.item()))))
+    print(plt.plot(losses_to_visualize_valid))
+    print('validation_loss------>' + str(losses_to_visualize_valid))
 
 
 
 
-    with torch.no_grad():
-        for i, data in enumerate(validation_dataloader):
-            if i > 10000:
-                break
-            X, y = data
-            predictions = model(X)
-            losses_to_visualize.append(loss.item())
-            _, predicted = torch.max(predictions.data, 1)
-            total += y.size(0)
-            correct += (predicted == y).sum().item()
-            if i % 1000 == 999:
-                print('validation_accuracy------------->' + str(100 * correct // total))
-
-        print('validation_accuracy-FINAL---------------->' + str(100 * correct // total))
-
-    plt.plot(accuracy)
-    plt.show
-    plt.plot(losses_to_visualize)
-    plt.show()
-    print('perplexity--------------->' + ' ' + str(np.exp((loss.item()))))

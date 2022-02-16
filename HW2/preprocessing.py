@@ -75,7 +75,7 @@ def custom_cross_entropy_loss(outputs, targets):
     return - torch.sum(outputs) / num_examples
 
 
-def run_nn_model(train_dataset, val_dataset, is_LSTM=False, epoch=2, use_custom_loss=False):
+def run_nn_model(train_dataset, val_dataset, is_LSTM=False, epoch=1, use_custom_loss=False):
     if is_LSTM:
         lstm = LSTM.Module()
         criterion = nn.CrossEntropyLoss()
@@ -85,7 +85,7 @@ def run_nn_model(train_dataset, val_dataset, is_LSTM=False, epoch=2, use_custom_
         criterion = nn.CrossEntropyLoss()
         net = FeedForwardNetwork.FeedForward(input_size=5, number_of_classes=27597, embedding_space=100)
         optimizer = optim.Adam(net.parameters(), lr=0.01)
-        FeedForwardNetwork.train(train_dataset, net, optimizer, criterion, val_dataset, use_custom_loss)
+        FeedForwardNetwork.train(net, train_dataset,  optimizer, criterion, val_dataset, epoch =1, use_custom_loss= False)
 
 
 def setup_nltk():
