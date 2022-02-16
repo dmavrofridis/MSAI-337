@@ -40,7 +40,7 @@ class Module(nn.Module):
         return torch.log_softmax(output, dim=1)
 
 
-def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch=1, use_custom_loss=False):
+def train(model, dataloader, optimizer, criterion, validation_dataloader,  use_custom_loss=False):
     accuracy = []
     model.train()
 

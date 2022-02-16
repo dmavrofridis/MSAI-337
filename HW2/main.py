@@ -22,4 +22,4 @@ def main(is_LSTM=False, use_custom_loss=False):  # if false then run FeedFoward
 
 
 if __name__ == '__main__':
-    main(is_LSTM=False, use_custom_loss=False)
+    main(is_LSTM=True, use_custom_loss=False)
