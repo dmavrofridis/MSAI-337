@@ -7,6 +7,7 @@ import FeedForwardNetwork
 import torch.optim as optim
 import torch.nn as nn
 import LSTM
+from global_variables import *
 
 
 def pre_process_train_data(name='wiki.train.txt', is_LSTM=False):
@@ -21,13 +22,14 @@ def pre_process_train_data(name='wiki.train.txt', is_LSTM=False):
     mapping = create_integers(text)
     reverse_mapping = {i: k for k, i in mapping.items()}
     integers_texts = words_to_integers(text, mapping)
+    overall_numbers = len(integers_texts)
     sliced_ints = sliding_window(integers_texts, sliding_window_value)
     sliced_ints = sliced_ints[:-1]  # you cannot predict the final one
     one_hot_dic = create_one_hot_encoddings(text, unique_n)
     labels = label_generation_RNN(integers_texts, 30) if is_LSTM else label_generation(integers_texts)
     labels_to_vectors = integers_to_vectors(labels, reverse_mapping, one_hot_dic)
     dataset = wikiDataset(sliced_ints, labels_to_vectors)
-    dataset_with_batch = batch_divder(dataset, batch_size=20)
+    dataset_with_batch = batch_divder(dataset, batch_size=  int(overall_numbers/BATCH_NUMBER ))
 
     return dataset_with_batch
 
@@ -39,21 +41,24 @@ def pre_process_val_train_data(name='wiki.valid.txt', is_LSTM=False):
         sliding_window_value = 5
     setup_nltk()
     text = to_number(lists_to_tokens(splitting_tokens(string_to_lower(load_text('wiki.train.txt')))))
+    text = remove_stopwords(text)
     unique_n = unique_words(text)
     mapping = create_integers(text)
     reverse_mapping = {i: k for k, i in mapping.items()}
     integers_texts = words_to_integers(text, mapping)
+    overall_numbers = len(integers_texts)
+
     sliced_ints = sliding_window(integers_texts, sliding_window_value)
     sliced_ints = sliced_ints[:-1]  # you cannot predict the final one
     one_hot_dic = create_one_hot_encoddings(text, unique_n)
     validation = to_number(lists_to_tokens(splitting_tokens(string_to_lower(load_text(name)))))
     validation = words_to_integers(validation, mapping)
-    validation_labels = label_generation_RNN(validation, 30) if is_LSTM else label_generation_RNN(validation)
+    validation_labels = label_generation_RNN(validation, 30) if is_LSTM else label_generation(validation)
     validation_sliced_ints = sliding_window(validation, 30) if is_LSTM else sliding_window(validation, 5)
     validation_sliced_ints = validation_sliced_ints[:-1]
     validation_labels_to_vectors = integers_to_vectors(validation_labels, reverse_mapping, one_hot_dic)
     val_dataset = wikiDataset(validation_sliced_ints, validation_labels_to_vectors)
-    val_datasett = batch_divder(val_dataset, batch_size=20)
+    val_datasett = batch_divder(val_dataset, batch_size=  int(overall_numbers/ BATCH_NUMBER ))
     return val_datasett
 
 
