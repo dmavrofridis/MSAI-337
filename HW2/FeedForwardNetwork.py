@@ -28,6 +28,7 @@ class FeedForward(nn.Module):
 
     def init_weights(self):
         initrange = 0.1
+        self.embed = self.embed(-initrange, initrange)
         self.Linear1 = self.Linear1(-initrange, initrange)
         self.Linear2 = self.Linear2(-initrange, initrange)
 
@@ -77,7 +78,7 @@ def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch=
                 losses_to_visualize.append(loss.item())
                 print(i)
                 print('mean_loss---------->' + ' ' + str(loss.item()))
-                if loss.item() < 5.3 :
+                if loss.item() < 5.3:
                     for j, data in enumerate(validation_dataloader):
 
                         total_valid = 0
