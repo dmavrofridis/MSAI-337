@@ -24,10 +24,7 @@ def pre_process_train_data(name='wiki.train.txt', is_LSTM=False):
     sliced_ints = sliding_window(integers_texts, sliding_window_value)
     sliced_ints = sliced_ints[:-1]  # you cannot predict the final one
     one_hot_dic = create_one_hot_encoddings(text, unique_n)
-    if is_LSTM:
-        labels = label_generation_RNN(integers_texts, 30)
-    else:
-        labels = label_generation(integers_texts)
+    labels = label_generation_RNN(integers_texts, 30) if is_LSTM else label_generation(integers_texts)
     labels_to_vectors = integers_to_vectors(labels, reverse_mapping, one_hot_dic)
     dataset = wikiDataset(sliced_ints, labels_to_vectors)
     dataset_with_batch = batch_divder(dataset, batch_size=20)
@@ -51,12 +48,8 @@ def pre_process_val_train_data(name='wiki.valid.txt', is_LSTM=False):
     one_hot_dic = create_one_hot_encoddings(text, unique_n)
     validation = to_number(lists_to_tokens(splitting_tokens(string_to_lower(load_text(name)))))
     validation = words_to_integers(validation, mapping)
-    if is_LSTM:
-        validation_labels = label_generation_RNN(validation, 30)
-        validation_sliced_ints = sliding_window(validation, 30)
-    else:
-        validation_labels = label_generation(validation)
-        validation_sliced_ints = sliding_window(validation, 5)
+    validation_labels = label_generation_RNN(validation, 30) if is_LSTM else label_generation_RNN(validation)
+    validation_sliced_ints = sliding_window(validation, 30) if is_LSTM else sliding_window(validation, 5)
     validation_sliced_ints = validation_sliced_ints[:-1]
     validation_labels_to_vectors = integers_to_vectors(validation_labels, reverse_mapping, one_hot_dic)
     val_dataset = wikiDataset(validation_sliced_ints, validation_labels_to_vectors)
@@ -64,17 +57,35 @@ def pre_process_val_train_data(name='wiki.valid.txt', is_LSTM=False):
     return val_datasett
 
 
-def run_nn_model(train_dataset, val_dataset, is_LSTM=False, custom_loss=False, epoch = 2):
+def softmax(x):
+    exp_x = torch.exp(x)
+    sum_x = torch.sum(exp_x, dim=1, keepdim=True)
+    return exp_x / sum_x
+
+
+def log_softmax(x):
+    return x - torch.logsumexp(x, dim=1, keepdim=True)
+
+
+def custom_cross_entropy_loss(outputs, targets):
+    num_examples = targets.shape[0]
+    batch_size = outputs.shape[0]
+    outputs = log_softmax(outputs)
+    outputs = outputs[range(batch_size), targets]
+    return - torch.sum(outputs) / num_examples
+
+
+def run_nn_model(train_dataset, val_dataset, is_LSTM=False, epoch=2, use_custom_loss=False):
     if is_LSTM:
         lstm = LSTM.Module()
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.Adam(lstm.parameters(), lr=0.001)
-        LSTM.train(lstm, train_dataset, optimizer, criterion, val_dataset)
+        LSTM.train(lstm, train_dataset, optimizer, criterion, val_dataset, use_custom_loss)
     else:
         criterion = nn.CrossEntropyLoss()
         net = FeedForwardNetwork.FeedForward(input_size=5, number_of_classes=27597, embedding_space=100)
         optimizer = optim.Adam(net.parameters(), lr=0.01)
-        FeedForwardNetwork.train(train_dataset, net, optimizer, criterion, val_dataset, custom_loss= False, epoch=1)
+        FeedForwardNetwork.train(train_dataset, net, optimizer, criterion, val_dataset, use_custom_loss)
 
 
 def setup_nltk():
