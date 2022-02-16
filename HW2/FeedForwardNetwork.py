@@ -15,6 +15,8 @@ class FeedForward(nn.Module):
         self.activation = torch.nn.Tanh()
         self.Linear2 = nn.Linear(embedding_space, number_of_classes)
         self.softmax = torch.nn.Softmax()
+        #tight_embeddings =
+        #self.Linear2.weights = self.embed.weights.T
 
     def forward(self, x):
         embeds = self.embed(x)
@@ -75,7 +77,24 @@ def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch=
                 losses_to_visualize.append(loss.item())
                 print(i)
                 print('mean_loss---------->' + ' ' + str(loss.item()))
-                if loss.item() < 5.7:
+                if loss.item() < 5.3 :
+                    for j, data in enumerate(validation_dataloader):
+
+                        total_valid = 0
+                        correct_valid = 0
+                        if j < 10000:
+                            X, y = data
+                            predictions = model(X)
+                            loss_val = criterion(predictions, y)
+
+                            _, predicted = torch.max(predictions.data, 1)
+                            total_valid += y.size(0)
+                            correct_valid += (predicted == y).sum().item()
+                            if j == 9000:
+                                print('validation_accuracy-FINAL---------------->' + str(
+                                    100 * correct_valid // total_valid))
+                                accuracy.append(100 * correct_valid // total_valid)
+                                losses_to_visualize_valid.append(loss_val.item())
                     break
                 losses = []
             if i %500 ==0 and i !=0:

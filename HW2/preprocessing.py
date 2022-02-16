@@ -29,7 +29,7 @@ def pre_process_train_data(name='wiki.train.txt', is_LSTM=False):
     labels = label_generation_RNN(integers_texts, 30) if is_LSTM else label_generation(integers_texts)
     labels_to_vectors = integers_to_vectors(labels, reverse_mapping, one_hot_dic)
     dataset = wikiDataset(sliced_ints, labels_to_vectors)
-    dataset_with_batch = batch_divder(dataset, batch_size=  int(overall_numbers/BATCH_NUMBER ))
+    dataset_with_batch = batch_divder(dataset, batch_size=  BATCH_SIZE )
 
     return dataset_with_batch
 
@@ -41,7 +41,7 @@ def pre_process_val_train_data(name='wiki.valid.txt', is_LSTM=False):
         sliding_window_value = 5
     setup_nltk()
     text = to_number(lists_to_tokens(splitting_tokens(string_to_lower(load_text('wiki.train.txt')))))
-    text = remove_stopwords(text)
+    #text = remove_stopwords(text)
     unique_n = unique_words(text)
     mapping = create_integers(text)
     reverse_mapping = {i: k for k, i in mapping.items()}
@@ -58,7 +58,7 @@ def pre_process_val_train_data(name='wiki.valid.txt', is_LSTM=False):
     validation_sliced_ints = validation_sliced_ints[:-1]
     validation_labels_to_vectors = integers_to_vectors(validation_labels, reverse_mapping, one_hot_dic)
     val_dataset = wikiDataset(validation_sliced_ints, validation_labels_to_vectors)
-    val_datasett = batch_divder(val_dataset, batch_size=  int(overall_numbers/ BATCH_NUMBER ))
+    val_datasett = batch_divder(val_dataset, batch_size=   BATCH_SIZE )
     return val_datasett
 
 
