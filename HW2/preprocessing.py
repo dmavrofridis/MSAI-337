@@ -39,7 +39,7 @@ def pre_process_val_train_data(name='wiki.valid.txt', is_LSTM=False):
         sliding_window_value = 30
     else:
         sliding_window_value = 5
-    setup_nltk()
+    #setup_nltk()
     text = to_number(lists_to_tokens(splitting_tokens(string_to_lower(load_text('wiki.train.txt')))))
     #text = remove_stopwords(text)
     unique_n = unique_words(text)

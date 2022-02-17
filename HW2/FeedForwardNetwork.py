@@ -7,7 +7,7 @@ from global_variables import *
 import matplotlib.pyplot as plt
 
 class FeedForward(nn.Module):
-    def __init__(self, input_size=27597, number_of_classes=27597, embedding_space=100, window_size=5):
+    def __init__(self, input_size=27597, number_of_classes=27597, embedding_space=100, window_size=5, tied_weights=True):
         super(FeedForward, self).__init__()
         self.embed = nn.Embedding(number_of_classes, embedding_space)
         self.Linear1 = nn.Linear(embedding_space * window_size, embedding_space)
@@ -15,8 +15,8 @@ class FeedForward(nn.Module):
         self.activation = torch.nn.Tanh()
         self.Linear2 = nn.Linear(embedding_space, number_of_classes)
         self.softmax = torch.nn.Softmax()
-        #tight_embeddings =
-        #self.Linear2.weights = self.embed.weights.T
+        if tied_weights:
+            self.Linear2.weight = nn.Parameter(self.embed.weight)
 
     def forward(self, x):
         embeds = self.embed(x)
