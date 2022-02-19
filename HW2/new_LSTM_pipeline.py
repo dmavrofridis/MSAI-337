@@ -102,7 +102,7 @@ def train_LSTM(data, model, optimizer, clip_grads, epoch_size=3, train=False):
                     perplexity = np.exp(loss.item())
                     print("Batch" + ' ' + str(index))
                     print("loss" + ' ' + str(loss.item()))
-                    if loss.item() < 5.2:
+                    if loss.item() < 5:
                         print('final_perplexity' + ' ' + str(perplexity))
 
                         text = to_number(lists_to_tokens(splitting_tokens(string_to_lower(load_text('wiki.valid.txt')))))
