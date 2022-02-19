@@ -52,7 +52,7 @@ def divider(data, size=BATCH_SIZE, time=30, window=30):
             yield tmp_batch
 
 
-def pre_process_train_data_LSTM_upgrade(name='wiki.train.txt', is_LSTM=True):
+def pre_process_train_data_LSTM_upgrade(name='wiki.train.txt',tester = 'wiki.valid.txt' ,is_LSTM=True):
     setup_nltk()
     sliding_window_value = 30
     text = to_number(lists_to_tokens(splitting_tokens(string_to_lower(load_text(name)))))
@@ -64,7 +64,7 @@ def pre_process_train_data_LSTM_upgrade(name='wiki.train.txt', is_LSTM=True):
     ytm_batch = divider(integers_texts, 20, 30, 30)
     net = LSTM_Language_Model(27597, 100, 100, 2, 0.25)
     optimizer = optim.Adam(net.parameters(), lr=0.01)
-    net = train_LSTM(integers_texts, net, optimizer, 100, train=True)
+    net = train_LSTM(integers_texts, net, optimizer, tester, 100, train=True)
 
     return net
 
@@ -83,7 +83,7 @@ def pre_process_valid_test_data_LSTM_upgrade(model, name='wiki.valid.txt', is_LS
 
 
 
-def train_LSTM(data, model, optimizer, clip_grads, epoch_size=3, train=False):
+def train_LSTM(data, model, optimizer, tester, clip_grads, epoch_size=3, train=False):
     if train == True:
         for i in range(5):
             model.train()
@@ -105,7 +105,7 @@ def train_LSTM(data, model, optimizer, clip_grads, epoch_size=3, train=False):
                     if loss.item() < 5:
                         print('final_perplexity' + ' ' + str(perplexity))
 
-                        text = to_number(lists_to_tokens(splitting_tokens(string_to_lower(load_text('wiki.valid.txt')))))
+                        text = to_number(lists_to_tokens(splitting_tokens(string_to_lower(load_text(tester)))))
                         unique_n = unique_words(text)
                         print('unique_words----->' + str(unique_n))
                         mapping = create_integers(text)
