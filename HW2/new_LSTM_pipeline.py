@@ -73,7 +73,7 @@ def pre_process_valid_test_data_LSTM_upgrade(model, name='wiki.valid.txt', is_LS
     mapping = create_integers(text)
     reverse_mapping = {i: k for k, i in mapping.items()}
     integers_texts = words_to_integers(text, mapping)
-    valid(validation_data, model)
+    valid(integers_texts, model)
 
 
 
