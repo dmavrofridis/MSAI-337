@@ -29,4 +29,4 @@ def main(is_LSTM, use_custom_loss, use_valid, use_upgraded_LSTM):
 
 
 if __name__ == '__main__':
-    main(True, False, False, False)
+    main(False, False, False, True)

@@ -71,7 +71,7 @@ def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch=
                     break
                 losses = []
 
-        '''
+
             if i %1000 ==0 and i !=0:
                 for j, data in enumerate(validation_dataloader):
 
@@ -89,7 +89,7 @@ def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch=
                             print('validation_accuracy---------------->' + str(100 * correct_valid// total_valid))
                             accuracy.append(100 * correct_valid // total_valid)
                             losses_to_visualize_valid.append(loss_val.item())
-'''
+
     plt.figure(figsize=(15, 15))
     print('perplexity--------------->' + ' ' + str(np.exp((loss.item()))))
 
