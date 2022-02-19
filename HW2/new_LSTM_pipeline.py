@@ -16,6 +16,11 @@ class LSTM_Language_Model(nn.Module):
         self.activation = nn.Tanh()
         self.hl = nn.Linear(hidden_dim, hidden_dim)
 
+    def init_weights(self):
+        initrange = 0.1
+        self.fc1 = self.embed(-initrange, initrange)
+        self.hl = self.Linear1(-initrange, initrange)
+
     def embedd(self, word_indexes):
         return self.fc1.weight.index_select(0, word_indexes)
 
@@ -59,7 +64,7 @@ def pre_process_train_data_LSTM_upgrade(name='wiki.train.txt', is_LSTM=True):
     ytm_batch = divider(integers_texts, 20, 30, 30)
     net = LSTM_Language_Model(27597, 100, 100, 2, 0.25)
     optimizer = optim.Adam(net.parameters(), lr=0.01)
-    train_LSTM(integers_texts, net, optimizer, 100, train=True)
+    net = train_LSTM(integers_texts, net, optimizer, 100, train=True)
     return net
 
 
@@ -96,31 +101,29 @@ def train_LSTM(data, model, optimizer, clip_grads, epoch_size=3, train=False):
                     perplexity = np.exp(loss.item())
                     print("Batch" + ' ' + str(index))
                     print("loss" + ' ' + str(loss.item()))
-                    if loss.item() < 6.9:
+                    if loss.item() < 5.2:
                         print('perplexity' + ' ' + str(perplexity))
-                        break
+                        return model
 
 
 
 
 
 def valid(data, model):
-            model.eval()
-            for index, sequence in enumerate(divider(data, 20)):
-                x = nn.utils.rnn.pack_sequence([torch.tensor(token[:-1]) for token in sequence])
-                y = nn.utils.rnn.pack_sequence([torch.tensor(token[1:]) for token in sequence])
-                model.zero_grad()
-                out = model(x)
-                loss = F.nll_loss(out, y.data)
-                loss.backward()
-                if index % 150 == 0:
-                    perplexity = np.exp(loss.item())
-                    print("Batch" + ' ' + str(index))
-                    print("loss" + ' ' + str(loss.item()))
-                    print('perplexity' + ' ' + str(perplexity))
+    for index, sequence in enumerate(divider(data, 20)):
+            x = nn.utils.rnn.pack_sequence([torch.tensor(token[:-1]) for token in sequence])
+            y = nn.utils.rnn.pack_sequence([torch.tensor(token[1:]) for token in sequence])
+            out = model(x)
+            loss = F.nll_loss(out, y.data)
+            loss.backward()
+            if index % 150 == 0:
+                perplexity = np.exp(loss.item())
+                print("Batch" + ' ' + str(index))
+                print("loss" + ' ' + str(loss.item()))
+                print('perplexity' + ' ' + str(perplexity))
 
-            print('final_perplexity_valid' + ' ' + str(perplexity))
-            print("Batch" + ' ' + str(index))
-            print("final_loss_valid" + ' ' + str(loss.item()))
+        print('final_perplexity_valid' + ' ' + str(perplexity))
+        print("Batch" + ' ' + str(index))
+        print("final_loss_valid" + ' ' + str(loss.item()))
 
 
