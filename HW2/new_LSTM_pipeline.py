@@ -65,6 +65,7 @@ def pre_process_train_data_LSTM_upgrade(name='wiki.train.txt', is_LSTM=True):
     net = LSTM_Language_Model(27597, 100, 100, 2, 0.25)
     optimizer = optim.Adam(net.parameters(), lr=0.01)
     net = train_LSTM(integers_texts, net, optimizer, 100, train=True)
+
     return net
 
 
@@ -121,9 +122,8 @@ def valid(data, model):
                 print("Batch" + ' ' + str(index))
                 print("loss" + ' ' + str(loss.item()))
                 print('perplexity' + ' ' + str(perplexity))
-
-        print('final_perplexity_valid' + ' ' + str(perplexity))
-        print("Batch" + ' ' + str(index))
-        print("final_loss_valid" + ' ' + str(loss.item()))
+    print('final_perplexity_valid' + ' ' + str(perplexity))
+    print("Batch" + ' ' + str(index))
+    print("final_loss_valid" + ' ' + str(loss.item()))
 
 
