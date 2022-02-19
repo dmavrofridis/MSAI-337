@@ -65,7 +65,9 @@ def pre_process_train_data_LSTM_upgrade(name='wiki.train.txt', tester='wiki.vali
     ytm_batch = divider(integers_texts, 20, 30, 30)
     net = LSTM_Language_Model(27597, 100, 100, 2, 0.25)
     optimizer = optim.Adam(net.parameters(), lr=0.01)
-    return integers_texts, net, optimizer,
+    valid = to_number(lists_to_tokens(splitting_tokens(string_to_lower(load_text( tester)))))
+    valid = words_to_integers(valid, mapping)
+    return integers_texts, net, optimizer, valid
 
 
 def pre_process_valid_test_data_LSTM_upgrade(model, name='wiki.valid.txt', is_LSTM=True):
@@ -80,7 +82,7 @@ def pre_process_valid_test_data_LSTM_upgrade(model, name='wiki.valid.txt', is_LS
     valid(integers_texts, model)
 
 
-def train_LSTM_Upgrade(data, model, optimizer, clip_grads, train=False, epoch_size=5):
+def train_LSTM_Upgrade(data, model, optimizer, valid,  clip_grads, train=False, epoch_size=5):
     if train:
         for i in range(epoch_size):
             model.train()

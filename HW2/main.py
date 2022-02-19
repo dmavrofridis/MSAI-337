@@ -22,8 +22,8 @@ def main(is_LSTM, use_custom_loss, use_valid, use_upgraded_LSTM):
         'pre_process_train_data_LSTM_upgrade function trains the model, the second function tests it on a valid dataset'
         print("Starting the timer")
         start_time = time.time()
-        data, model, optimizer = pre_process_train_data_LSTM_upgrade(tester='wiki.test.txt')
-        train_LSTM_Upgrade(data, model, optimizer, 100, train=True, epoch_size=5)
+        data, model, optimizer,valid = pre_process_train_data_LSTM_upgrade()
+        train_LSTM_Upgrade(data, model, optimizer, valid, 100, train=True, epoch_size=5)
         end_time = time.time() - start_time
         print("Trained in -> " + str(end_time / 60) + " minutes.")
 
