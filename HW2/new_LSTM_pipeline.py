@@ -85,7 +85,7 @@ def pre_process_valid_test_data_LSTM_upgrade(model, name='wiki.valid.txt', is_LS
 
 def train_LSTM(data, model, optimizer, clip_grads, epoch_size=3, train=False):
     if train == True:
-        for i in range(3):
+        for i in range(5):
             model.train()
             for index, sequence in enumerate(divider(data, 20)):
                 x = nn.utils.rnn.pack_sequence([torch.tensor(token[:-1]) for token in sequence])
@@ -97,16 +97,36 @@ def train_LSTM(data, model, optimizer, clip_grads, epoch_size=3, train=False):
                 if clip_grads:
                     torch.nn.utils.clip_grad_norm_(model.parameters(), 1)
                 optimizer.step()
-                if index % 150 == 0:
+                if index % 150 == 0 or loss.item() <4.5 :
 
                     perplexity = np.exp(loss.item())
                     print("Batch" + ' ' + str(index))
                     print("loss" + ' ' + str(loss.item()))
                     if loss.item() < 5.2:
-                        print('perplexity' + ' ' + str(perplexity))
-                        return model
+                        print('final_perplexity' + ' ' + str(perplexity))
 
+                        text = to_number(lists_to_tokens(splitting_tokens(string_to_lower(load_text('wiki.valid.txt')))))
+                        unique_n = unique_words(text)
+                        print('unique_words----->' + str(unique_n))
+                        mapping = create_integers(text)
+                        reverse_mapping = {i: k for k, i in mapping.items()}
+                        integers_texts = words_to_integers(text, mapping)
 
+                        for index, sequence in enumerate(divider(data, 20)):
+                            x = nn.utils.rnn.pack_sequence([torch.tensor(token[:-1]) for token in sequence])
+                            y = nn.utils.rnn.pack_sequence([torch.tensor(token[1:]) for token in sequence])
+                            out = model(x)
+                            loss = F.nll_loss(out, y.data)
+                            loss.backward()
+                            if index % 150 == 0:
+                                perplexity = np.exp(loss.item())
+                                print("Batch" + ' ' + str(index))
+                                print("loss" + ' ' + str(loss.item()))
+                                print('perplexity' + ' ' + str(perplexity))
+                        print('final_perplexity_valid' + ' ' + str(perplexity))
+                        print("Batch" + ' ' + str(index))
+                        print("final_loss_valid" + ' ' + str(loss.item()))
+                        return
 
 
 

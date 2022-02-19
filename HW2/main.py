@@ -23,7 +23,7 @@ def main(is_LSTM=False, use_custom_loss=False, use_valid=False, upgraded= False)
     else:
         'pre_process_train_data_LSTM_upgrade function trains the model, the second function tests it on a valid dataset'
         model = pre_process_train_data_LSTM_upgrade()
-        pre_process_valid_test_data_LSTM_upgrade(model, 'wiki.valid.txt')
+      #  pre_process_valid_test_data_LSTM_upgrade(model, 'wiki.valid.txt')
 
 
 
