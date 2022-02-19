@@ -64,7 +64,7 @@ def pre_process_train_data_LSTM_upgrade(name='wiki.train.txt',tester = 'wiki.val
     ytm_batch = divider(integers_texts, 20, 30, 30)
     net = LSTM_Language_Model(27597, 100, 100, 2, 0.25)
     optimizer = optim.Adam(net.parameters(), lr=0.01)
-    net = train_LSTM(integers_texts, net, optimizer, tester, 100, train=True)
+    net = train_LSTM(integers_texts, net, optimizer, 100, train=True, epoch_size = 5)
 
     return net
 
@@ -83,9 +83,9 @@ def pre_process_valid_test_data_LSTM_upgrade(model, name='wiki.valid.txt', is_LS
 
 
 
-def train_LSTM(data, model, optimizer, tester, clip_grads, epoch_size=3, train=False):
+def train_LSTM(data, model, optimizer, clip_grads, train=False, epoch_size =5):
     if train == True:
-        for i in range(5):
+        for i in range(epoch_size):
             model.train()
             for index, sequence in enumerate(divider(data, 20)):
                 x = nn.utils.rnn.pack_sequence([torch.tensor(token[:-1]) for token in sequence])
@@ -103,9 +103,9 @@ def train_LSTM(data, model, optimizer, tester, clip_grads, epoch_size=3, train=F
                     print("Batch" + ' ' + str(index))
                     print("loss" + ' ' + str(loss.item()))
                     if loss.item() < 5:
-                        print('final_perplexity' + ' ' + str(perplexity))
+                        print('final_perplexity_train' + ' ' + str(perplexity))
 
-                        text = to_number(lists_to_tokens(splitting_tokens(string_to_lower(load_text(tester)))))
+                        text = to_number(lists_to_tokens(splitting_tokens(string_to_lower(load_text('wiki.valid.txt')))))
                         unique_n = unique_words(text)
                         print('unique_words----->' + str(unique_n))
                         mapping = create_integers(text)
@@ -117,12 +117,9 @@ def train_LSTM(data, model, optimizer, tester, clip_grads, epoch_size=3, train=F
                             y = nn.utils.rnn.pack_sequence([torch.tensor(token[1:]) for token in sequence])
                             out = model(x)
                             loss = F.nll_loss(out, y.data)
-                            loss.backward()
                             if index % 150 == 0:
                                 perplexity = np.exp(loss.item())
-                                print("Batch" + ' ' + str(index))
-                                print("loss" + ' ' + str(loss.item()))
-                                print('perplexity' + ' ' + str(perplexity))
+
                         print('final_perplexity_valid' + ' ' + str(perplexity))
                         print("Batch" + ' ' + str(index))
                         print("final_loss_valid" + ' ' + str(loss.item()))
