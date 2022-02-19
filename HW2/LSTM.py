@@ -5,8 +5,10 @@ import numpy as np
 from preprocessing import *
 from global_variables import *
 
+
 class Module(nn.Module):
-    def __init__(self, vocab_size=NUNBER_OF_CLASSES, n_class=NUNBER_OF_CLASSES, emb_dim=EMBEDDING_SPACE, hid=EMBEDDING_SPACE, num_layers=2, dropout=0.2):
+    def __init__(self, vocab_size=NUNBER_OF_CLASSES, n_class=NUNBER_OF_CLASSES, emb_dim=EMBEDDING_SPACE,
+                 hid=EMBEDDING_SPACE, num_layers=2, dropout=0.2):
         super(Module, self).__init__()
         self.embedding = nn.Embedding(num_embeddings=vocab_size,
                                       embedding_dim=emb_dim)
@@ -40,14 +42,13 @@ class Module(nn.Module):
         return torch.log_softmax(output, dim=1)
 
 
-def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch = EPOCH_NUMBER,  use_custom_loss=False):
+def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch=EPOCH_NUMBER, use_custom_loss=False):
     accuracy = []
     model.train()
 
     losses = []
     losses_to_visualize = []
     losses_to_visualize_valid = []
-
 
     for epoch in range(EPOCH_NUMBER):
         for i, data in enumerate(dataloader):
@@ -65,8 +66,8 @@ def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch 
             if i % 100 == 0:
                 losses_to_visualize.append(loss.item())
                 print(i)
-                print('mean_loss---------->' + ' ' + str( loss.item()))
-                if loss.item()  < 4:# or i == 2000:
+                print('mean_loss---------->' + ' ' + str(loss.item()))
+                if loss.item() < 4:  # or i == 2000:
                     break
                 losses = []
 
@@ -99,5 +100,3 @@ def train(model, dataloader, optimizer, criterion, validation_dataloader, epoch 
     print('perplexity_second--------------->' + ' ' + str(np.exp((loss_val.item()))))
     print(plt.plot(losses_to_visualize_valid))
     print('validation_loss------>' + str(losses_to_visualize_valid))
-
-

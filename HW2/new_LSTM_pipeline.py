@@ -5,6 +5,7 @@ import nltk
 from global_variables import *
 from preprocessing import *
 
+
 class LSTM_Language_Model(nn.Module):
     def __init__(self, vocab_size=27597, embedding_dim=100,
                  hidden_dim=100, lstm_layers=2, dropout=0.2):
@@ -52,7 +53,7 @@ def divider(data, size=BATCH_SIZE, time=30, window=30):
             yield tmp_batch
 
 
-def pre_process_train_data_LSTM_upgrade(name='wiki.train.txt',tester = 'wiki.valid.txt' ,is_LSTM=True):
+def pre_process_train_data_LSTM_upgrade(name='wiki.train.txt', tester='wiki.valid.txt', is_LSTM=True):
     setup_nltk()
     sliding_window_value = 30
     text = to_number(lists_to_tokens(splitting_tokens(string_to_lower(load_text(name)))))
@@ -64,10 +65,7 @@ def pre_process_train_data_LSTM_upgrade(name='wiki.train.txt',tester = 'wiki.val
     ytm_batch = divider(integers_texts, 20, 30, 30)
     net = LSTM_Language_Model(27597, 100, 100, 2, 0.25)
     optimizer = optim.Adam(net.parameters(), lr=0.01)
-    net = train_LSTM(integers_texts, net, optimizer, 100, train=True, epoch_size = 5)
-
-    return net
-
+    return integers_texts, net, optimizer,
 
 
 def pre_process_valid_test_data_LSTM_upgrade(model, name='wiki.valid.txt', is_LSTM=True):
@@ -82,9 +80,8 @@ def pre_process_valid_test_data_LSTM_upgrade(model, name='wiki.valid.txt', is_LS
     valid(integers_texts, model)
 
 
-
-def train_LSTM(data, model, optimizer, clip_grads, train=False, epoch_size =5):
-    if train == True:
+def train_LSTM_Upgrade(data, model, optimizer, clip_grads, train=False, epoch_size=5):
+    if train:
         for i in range(epoch_size):
             model.train()
             for index, sequence in enumerate(divider(data, 20)):
@@ -97,7 +94,7 @@ def train_LSTM(data, model, optimizer, clip_grads, train=False, epoch_size =5):
                 if clip_grads:
                     torch.nn.utils.clip_grad_norm_(model.parameters(), 1)
                 optimizer.step()
-                if index % 150 == 0 or loss.item() <4.5 :
+                if index % 150 == 0 or loss.item() < 4.5:
 
                     perplexity = np.exp(loss.item())
                     print("Batch" + ' ' + str(index))
@@ -105,7 +102,8 @@ def train_LSTM(data, model, optimizer, clip_grads, train=False, epoch_size =5):
                     if loss.item() < 5:
                         print('final_perplexity_train' + ' ' + str(perplexity))
 
-                        text = to_number(lists_to_tokens(splitting_tokens(string_to_lower(load_text('wiki.valid.txt')))))
+                        text = to_number(
+                            lists_to_tokens(splitting_tokens(string_to_lower(load_text('wiki.valid.txt')))))
                         unique_n = unique_words(text)
                         print('unique_words----->' + str(unique_n))
                         mapping = create_integers(text)
@@ -126,21 +124,18 @@ def train_LSTM(data, model, optimizer, clip_grads, train=False, epoch_size =5):
                         return
 
 
-
 def valid(data, model):
     for index, sequence in enumerate(divider(data, 20)):
-            x = nn.utils.rnn.pack_sequence([torch.tensor(token[:-1]) for token in sequence])
-            y = nn.utils.rnn.pack_sequence([torch.tensor(token[1:]) for token in sequence])
-            out = model(x)
-            loss = F.nll_loss(out, y.data)
-            loss.backward()
-            if index % 150 == 0:
-                perplexity = np.exp(loss.item())
-                print("Batch" + ' ' + str(index))
-                print("loss" + ' ' + str(loss.item()))
-                print('perplexity' + ' ' + str(perplexity))
+        x = nn.utils.rnn.pack_sequence([torch.tensor(token[:-1]) for token in sequence])
+        y = nn.utils.rnn.pack_sequence([torch.tensor(token[1:]) for token in sequence])
+        out = model(x)
+        loss = F.nll_loss(out, y.data)
+        loss.backward()
+        if index % 150 == 0:
+            perplexity = np.exp(loss.item())
+            print("Batch" + ' ' + str(index))
+            print("loss" + ' ' + str(loss.item()))
+            print('perplexity' + ' ' + str(perplexity))
     print('final_perplexity_valid' + ' ' + str(perplexity))
     print("Batch" + ' ' + str(index))
     print("final_loss_valid" + ' ' + str(loss.item()))
-
-
