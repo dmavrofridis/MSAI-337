@@ -104,15 +104,7 @@ def train_LSTM_Upgrade(data, model, optimizer, valid,  clip_grads, train=False, 
                     if loss.item() < 5:
                         print('final_perplexity_train' + ' ' + str(perplexity))
 
-                        text = to_number(
-                            lists_to_tokens(splitting_tokens(string_to_lower(load_text('wiki.valid.txt')))))
-                        unique_n = unique_words(text)
-                        print('unique_words----->' + str(unique_n))
-                        mapping = create_integers(text)
-                        reverse_mapping = {i: k for k, i in mapping.items()}
-                        integers_texts = words_to_integers(text, mapping)
-
-                        for index, sequence in enumerate(divider(data, 20)):
+                        for index, sequence in enumerate(divider(valid, 20)):
                             x = nn.utils.rnn.pack_sequence([torch.tensor(token[:-1]) for token in sequence])
                             y = nn.utils.rnn.pack_sequence([torch.tensor(token[1:]) for token in sequence])
                             out = model(x)
