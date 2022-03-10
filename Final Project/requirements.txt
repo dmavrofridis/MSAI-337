@@ -1,0 +1,5 @@
+torch~=0.58
+numpy~=1.21.2
+datasets~=1.4.1
+transformers~=4.14
+huggingface_hub~=0.4.0
