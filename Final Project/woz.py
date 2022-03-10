@@ -14,11 +14,18 @@ parser.add_argument('--config', default='./config_files/config.yaml', help='Conf
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
+
 def make_woz_datasets(bKnowledge, config):
     if bKnowledge:
-        out_names = [config["user_path"] + output_data_path + '/woz.train_c.txt', config["user_path"] + output_data_path + '/woz.valid_c.txt', config["user_path"] + output_data_path + '/woz.test_c.txt']
+        out_names = [config["user_path"] + output_data_path + '/woz.train_c.txt',
+                     config["user_path"] + output_data_path + '/woz.valid_c.txt',
+                     config["user_path"] + output_data_path + '/woz.test_c.txt']
     else:
-        out_names = [config["user_path"] + output_data_path + '/woz.train_b.txt', config["user_path"] + output_data_path + '/woz.valid_a.txt', config["user_path"] + output_data_path + '/woz.test_a.txt', config["user_path"] + output_data_path + '/woz.valid_b.txt', config["user_path"] + output_data_path + '/woz.test_b.txt']
+        out_names = [config["user_path"] + output_data_path + '/woz.train_b.txt',
+                     config["user_path"] + output_data_path + '/woz.valid_a.txt',
+                     config["user_path"] + output_data_path + '/woz.test_a.txt',
+                     config["user_path"] + output_data_path + '/woz.valid_b.txt',
+                     config["user_path"] + output_data_path + '/woz.test_b.txt']
     max_ins = [18, 2, 2, 2, 2]
 
     count = 0
