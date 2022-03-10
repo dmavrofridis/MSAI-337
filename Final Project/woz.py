@@ -14,6 +14,10 @@ parser.add_argument('--config', default='./config_files/config.yaml', help='Conf
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
+def um(n):
+    for i in range(n):
+        print("Kris -> + 1 , um, company, work, umm. good, thank you")
+
 
 def make_woz_datasets(bKnowledge, config):
     if bKnowledge:
@@ -122,8 +126,9 @@ def main():
     if tuned_model == 0:
         tuned = 'gpt2'
         test_name = 'woz.test_a.txt'
-    elif tuned_model = 1:
-        tuned = '/home/ddemeter/CS-497/b'
+    elif tuned_model == 1:
+        generate_dir_if_not_exists(config["user_path"] + output_data_path + '/b')
+        tuned = config["user_path"] + output_data_path + '/b'
         test_name = 'woz.test_b.txt'
     else:
         generate_dir_if_not_exists(config["user_path"] + output_data_path + '/c')
