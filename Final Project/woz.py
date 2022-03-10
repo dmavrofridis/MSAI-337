@@ -19,17 +19,17 @@ def um(n):
         print("Kris -> + 1 , um, company, work, umm. good, thank you")
 
 
-def make_woz_datasets(bKnowledge, config):
+def make_woz_datasets(bKnowledge):
     if bKnowledge:
-        out_names = [config["user_path"] + output_data_path + '/woz.train_c.txt',
-                     config["user_path"] + output_data_path + '/woz.valid_c.txt',
-                     config["user_path"] + output_data_path + '/woz.test_c.txt']
+        out_names = [output_data_path + '/woz.train_c.txt',
+                     output_data_path + '/woz.valid_c.txt',
+                     output_data_path + '/woz.test_c.txt']
     else:
-        out_names = [config["user_path"] + output_data_path + '/woz.train_b.txt',
-                     config["user_path"] + output_data_path + '/woz.valid_a.txt',
-                     config["user_path"] + output_data_path + '/woz.test_a.txt',
-                     config["user_path"] + output_data_path + '/woz.valid_b.txt',
-                     config["user_path"] + output_data_path + '/woz.test_b.txt']
+        out_names = [output_data_path + '/woz.train_b.txt',
+                     output_data_path + '/woz.valid_a.txt',
+                     output_data_path + '/woz.test_a.txt',
+                     output_data_path + '/woz.valid_b.txt',
+                     output_data_path + '/woz.test_b.txt']
     max_ins = [18, 2, 2, 2, 2]
 
     count = 0
@@ -37,7 +37,7 @@ def make_woz_datasets(bKnowledge, config):
     for dataset in range(len(out_names)):
         fout = open(out_names[dataset], 'wt')
         for dialog in range(1, max_ins[dataset], 1):
-            file_name = config["user_path"] + input_train_data_path + '/dialogues_%03d.json' % dialog
+            file_name = input_train_data_path + '/dialogues_%03d.json' % dialog
             print(file_name)
             with open(file_name) as f:
                 data = json.load(f)
@@ -113,11 +113,11 @@ def main():
     #######
     # Get the variables required from the yaml file
 
-    generate_dir_if_not_exists(config["user_path"] + output_data_path)
-    generate_dir_if_not_exists(config["user_path"] + input_train_data_path)
+    generate_dir_if_not_exists(output_data_path)
+    generate_dir_if_not_exists(input_data_path)
 
-    make_woz_datasets(True, config)
-    make_woz_datasets(False, config)
+    make_woz_datasets(True)
+    make_woz_datasets(False)
 
     gen_mode = 0
     gen_labels = ['logits', 'greedy', 'beam', 'top-p']
@@ -127,12 +127,12 @@ def main():
         tuned = 'gpt2'
         test_name = 'woz.test_a.txt'
     elif tuned_model == 1:
-        generate_dir_if_not_exists(config["user_path"] + output_data_path + '/b')
-        tuned = config["user_path"] + output_data_path + '/b'
+        generate_dir_if_not_exists(output_data_path + '/b')
+        tuned = output_data_path + '/b'
         test_name = 'woz.test_b.txt'
     else:
-        generate_dir_if_not_exists(config["user_path"] + output_data_path + '/c')
-        tuned = config["user_path"] + output_data_path + '/c'
+        generate_dir_if_not_exists(output_data_path + '/c')
+        tuned = output_data_path + '/c'
         test_name = 'woz.test_c.txt'
 
     tokenizer = GPT2Tokenizer.from_pretrained(tuned)

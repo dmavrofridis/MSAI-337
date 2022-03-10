@@ -1,2 +1,3 @@
-input_train_data_path = "/data/input/train"
-output_data_path = "/data/output"
+input_train_data_path = "./files/data/input/train"
+input_data_path = "./files/data/input"
+output_data_path = "./files/data/output"
