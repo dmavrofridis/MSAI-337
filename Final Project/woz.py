@@ -10,7 +10,6 @@ from helper_functions import *
 
 parser = ArgumentParser()
 parser.add_argument('--config', default='./config_files/config.yaml', help='Config .yaml file to use for training')
-
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
@@ -258,7 +257,6 @@ def main():
     print('Final %s on %s BLEU: %7.3f % 7.3f' % (gen_labels[gen_mode], test_name, results['bleu'], sum(bleus) / 511.0))
     print(len(predicts), len(refs))
     print(' ')
-
 
 
 if __name__ == "__main__":

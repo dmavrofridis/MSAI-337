@@ -25,6 +25,9 @@ import logging
 import math
 import os
 import sys
+from argparse import ArgumentParser
+
+import torch
 from dataclasses import dataclass, field
 from itertools import chain
 from typing import Optional
@@ -51,12 +54,14 @@ from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version
 from transformers.utils.versions import require_version
 
+
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
-check_min_version("4.17.0")
+check_min_version("4.18.0.dev0")
 
 require_version("datasets>=1.8.0", "To fix: pip install -r examples/pytorch/language-modeling/requirements.txt")
 
 logger = logging.getLogger(__name__)
+
 
 MODEL_CONFIG_CLASSES = list(MODEL_FOR_CAUSAL_LM_MAPPING.keys())
 MODEL_TYPES = tuple(conf.model_type for conf in MODEL_CONFIG_CLASSES)
@@ -67,11 +72,12 @@ class ModelArguments:
     """
     Arguments pertaining to which model/config/tokenizer we are going to fine-tune, or train from scratch.
     """
+
     model_name_or_path: Optional[str] = field(
         default=None,
         metadata={
             "help": "The model checkpoint for weights initialization."
-                    "Don't set if you want to train a model from scratch."
+            "Don't set if you want to train a model from scratch."
         },
     )
     model_type: Optional[str] = field(
@@ -82,7 +88,7 @@ class ModelArguments:
         default=None,
         metadata={
             "help": "Override some existing default config settings when a model is trained from scratch. Example: "
-                    "n_embd=10,resid_pdrop=0.2,scale_attn_weights=false,summary_type=cls_index"
+            "n_embd=10,resid_pdrop=0.2,scale_attn_weights=false,summary_type=cls_index"
         },
     )
     config_name: Optional[str] = field(
@@ -107,7 +113,7 @@ class ModelArguments:
         default=False,
         metadata={
             "help": "Will use the token generated when running `transformers-cli login` (necessary to use this script "
-                    "with private models)."
+            "with private models)."
         },
     )
 
@@ -139,14 +145,14 @@ class DataTrainingArguments:
         default=None,
         metadata={
             "help": "For debugging purposes or quicker training, truncate the number of training examples to this "
-                    "value if set."
+            "value if set."
         },
     )
     max_eval_samples: Optional[int] = field(
         default=None,
         metadata={
             "help": "For debugging purposes or quicker training, truncate the number of evaluation examples to this "
-                    "value if set."
+            "value if set."
         },
     )
 
@@ -154,8 +160,8 @@ class DataTrainingArguments:
         default=None,
         metadata={
             "help": "Optional input sequence length after tokenization. "
-                    "The training dataset will be truncated in block of this size for training. "
-                    "Default to the model max input length for single sentence inputs (take into account special tokens)."
+            "The training dataset will be truncated in block of this size for training. "
+            "Default to the model max input length for single sentence inputs (take into account special tokens)."
         },
     )
     overwrite_cache: bool = field(
@@ -353,7 +359,7 @@ def main():
     else:
         model = AutoModelForCausalLM.from_config(config)
         n_params = sum(dict((p.data_ptr(), p.numel()) for p in model.parameters()).values())
-        logger.info(f"Training new model from scratch - Total size={n_params / 2 ** 20:.2f}M params")
+        logger.info(f"Training new model from scratch - Total size={n_params/2**20:.2f}M params")
 
     model.resize_token_embeddings(len(tokenizer))
 
@@ -415,7 +421,7 @@ def main():
             total_length = (total_length // block_size) * block_size
         # Split by chunks of max_len.
         result = {
-            k: [t[i: i + block_size] for i in range(0, total_length, block_size)]
+            k: [t[i : i + block_size] for i in range(0, total_length, block_size)]
             for k, t in concatenated_examples.items()
         }
         result["labels"] = result["input_ids"].copy()
@@ -541,8 +547,13 @@ def _mp_fn(index):
     main()
 
 
-# arguments to run with --> --output_dir=./files/data/output/b --model_type=gpt2 --model_name_or_path=gpt2 --train_file=$TRAIN_FILE --do_train --validation_file=$TEST_FILE --do_eval --save_total_limit 10 --num_train_epochs 10
 if __name__ == "__main__":
-    # os.system("export TRAIN_FILE=./files/data/output/woz.train_b.txt")
-    # os.system("export TEST_FILE=./files/data/output/woz.test_b.txt")
+    # To read the data directory from the argument given
+    # add this line in the parameters within run to run the code
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    available_gpus = [torch.cuda.device(i) for i in range(torch.cuda.device_count())]
+    print("Device is -> " + str(device) + " and number of devices available -> " + str(available_gpus))
+    '''--output_dir=files/data/output/b --model_type=gpt2 --model_name_or_path=gpt2 
+    --train_file=files/data/output/woz.train_b.txt --do_train --validation_file=files/data/output/woz.test_b.txt 
+    --do_eval --save_total_limit 10 --num_train_epochs 10 --device=cuda --n_gpu=1'''
     main()
