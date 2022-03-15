@@ -25,6 +25,8 @@ import logging
 import math
 import os
 import sys
+from sklearn.metrics import precision_recall_fscore_support
+
 import torch
 from argparse import ArgumentParser
 
@@ -54,6 +56,8 @@ from transformers.testing_utils import CaptureLogger
 from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version
 from transformers.utils.versions import require_version
+from transformers import XLNetConfig, XLNetModel
+
 from transformers import TransfoXLConfig, TransfoXLModel, TransfoXLLMHeadModel
 
 
@@ -319,18 +323,25 @@ def main():
         "revision": model_args.model_revision,
         "use_auth_token": True if model_args.use_auth_token else None,
     }
+
     if model_args.config_name:
-        config = AutoConfig.from_pretrained(model_args.config_name, **config_kwargs)
+        configuration = XLNetConfig()
+        config = XLNetModel(configuration)
+
+
+
+        #config = CONFIG_MAPPING[model_args.model_type](n_embd=768, activation_function = 'silu' )
     elif model_args.model_name_or_path:
-        config = AutoConfig.from_pretrained(model_args.model_name_or_path, **config_kwargs)
+        configuration = XLNetConfig()
+        config = XLNetModel(configuration)
+       # config = CONFIG_MAPPING[model_args.model_type](n_embd=768, activation_function = 'silu' )
     else:
-        config = CONFIG_MAPPING[model_args.model_type]()
+        config = CONFIG_MAPPING[model_args.model_type](n_embd=3600, n_layer = 18)
         logger.warning("You are instantiating a new config instance from scratch.")
         if model_args.config_overrides is not None:
             logger.info(f"Overriding config: {model_args.config_overrides}")
             config.update_from_string(model_args.config_overrides)
             logger.info(f"New config: {config}")
-
     tokenizer_kwargs = {
         "cache_dir": model_args.cache_dir,
         "use_fast": model_args.use_fast_tokenizer,
@@ -464,7 +475,10 @@ def main():
                 logits = logits[0]
             return logits.argmax(dim=-1)
 
-        metric = load_metric("accuracy")
+        metric = load_metric('accuracy')
+        #metric2 = load_metric("glue", 'mrpc')
+
+
 
         def compute_metrics(eval_preds):
             preds, labels = eval_preds
@@ -472,9 +486,10 @@ def main():
             # by preprocess_logits_for_metrics but we need to shift the labels
             labels = labels[:, 1:].reshape(-1)
             preds = preds[:, :-1].reshape(-1)
-            return metric.compute(predictions=preds, references=labels)
 
-    # Initialize our Trainer
+            accuracy = metric.compute(predictions=preds, references=labels)
+           # f1 = metric2.compute(predictions=preds, references=labels
+            return metric.compute(predictions=preds, references=labels)
     trainer = Trainer(
         model=model,
         args=training_args,
@@ -548,10 +563,9 @@ def _mp_fn(index):
 
 
 if __name__ == "__main__":
-    # A # --output_dir=files/data/output/gpt2 --model_type=gpt2 --model_name_or_path=gpt2 --validation_file=files/data/output/woz.test_a.txt --do_eval --save_total_limit 10 --per_device_train_batch_size=2 --per_device_eval_batch_size=2
-    # B # --output_dir=files/data/output/b --model_type=gpt2 --model_name_or_path=gpt2 --train_file=files/data/output/woz.train_b.txt --do_train --validation_file=files/data/output/woz.test_b.txt --do_eval --save_total_limit 10 --num_train_epochs 10 --per_device_train_batch_size=2 --per_device_eval_batch_size=2
-    # C # --output_dir=files/data/output/c --model_type=distilgpt2 --model_name_or_path=distilgpt2 --train_file=files/data/output/woz.train_c.txt --do_train --validation_file=files/data/output/woz.test_c.txt --do_eval --save_total_limit 10 --num_train_epochs 10 --per_device_train_batch_size=2 --per_device_eval_batch_size=2
-    # D # --output_dir=files/data/output/d --model_type=transfo-xl --model_name_or_path=transfo-xl --train_file=files/data/output/woz.train_c.txt --do_train --validation_file=files/data/output/woz.test_c.txt --do_eval --save_total_limit 10 --num_train_epochs 10 --per_device_train_batch_size=2 --per_device_eval_batch_size=2
+    # A # --output_dir=files/data/output/gpt2 --overwrite_output_dir True --model_type=gpt2 --model_name_or_path=gpt2 --validation_file=files/data/output/woz.test_a.txt --do_eval --save_total_limit 10 --preprocessing_num_workers 48 --per_device_train_batch_size=2 --per_device_eval_batch_size=2
+    # B # --output_dir=files/data/output/b --overwrite_output_dir True --model_type=gpt2 --model_name_or_path=gpt2 --train_file=files/data/output/woz.train_b.txt --do_train --validation_file=files/data/output/woz.test_b.txt --do_eval --save_total_limit 10 --num_train_epochs 10 --preprocessing_num_workers 48 --per_device_train_batch_size=2 --per_device_eval_batch_size=2
+    # C # --output_dir=files/data/output/c --overwrite_output_dir True --model_type=distilgpt2 --model_name_or_path=distilgpt2 --train_file=files/data/output/woz.train_c.txt --do_train --validation_file=files/data/output/woz.test_c.txt --do_eval --save_total_limit 10 --num_train_epochs 10 --preprocessing_num_workers 48 --per_device_train_batch_size=2 --per_device_eval_batch_size=2
 
     # To read the data directory from the argument given
     # add this line in the parameters within run to run the code
