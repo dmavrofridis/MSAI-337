@@ -329,7 +329,6 @@ def main():
         config = XLNetModel(configuration)
 
 
-
         #config = CONFIG_MAPPING[model_args.model_type](n_embd=768, activation_function = 'silu' )
     elif model_args.model_name_or_path:
         configuration = XLNetConfig()
@@ -563,6 +562,7 @@ def _mp_fn(index):
 
 
 if __name__ == "__main__":
+
     # A # --output_dir=files/data/output/gpt2 --overwrite_output_dir True --model_type=gpt2 --model_name_or_path=gpt2 --validation_file=files/data/output/woz.test_a.txt --do_eval --save_total_limit 10 --preprocessing_num_workers 48 --per_device_train_batch_size=2 --per_device_eval_batch_size=2
     # B # --output_dir=files/data/output/b --overwrite_output_dir True --model_type=gpt2 --model_name_or_path=gpt2 --train_file=files/data/output/woz.train_b.txt --do_train --validation_file=files/data/output/woz.test_b.txt --do_eval --save_total_limit 10 --num_train_epochs 10 --preprocessing_num_workers 48 --per_device_train_batch_size=2 --per_device_eval_batch_size=2
     # C # --output_dir=files/data/output/c --overwrite_output_dir True --model_type=distilgpt2 --model_name_or_path=distilgpt2 --train_file=files/data/output/woz.train_c.txt --do_train --validation_file=files/data/output/woz.test_c.txt --do_eval --save_total_limit 10 --num_train_epochs 10 --preprocessing_num_workers 48 --per_device_train_batch_size=2 --per_device_eval_batch_size=2
