@@ -1,0 +1,9 @@
+torch~=1.10.2
+datasets~=1.18.4
+sklearn
+# The version you need to download is the following : 4.18.0.dev0 which you can download using the following commands in terminal or console
+#transformers-4.18.0.dev0
+#git clone https://github.com/huggingface/transformers
+#cd transformers
+#pip install .
+#transformers~=4.17.0
