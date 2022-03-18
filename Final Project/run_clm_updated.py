@@ -327,15 +327,13 @@ def main():
     if model_args.config_name:
         configuration = XLNetConfig()
         config = XLNetModel(configuration)
-
-
         #config = CONFIG_MAPPING[model_args.model_type](n_embd=768, activation_function = 'silu' )
     elif model_args.model_name_or_path:
         configuration = XLNetConfig()
         config = XLNetModel(configuration)
        # config = CONFIG_MAPPING[model_args.model_type](n_embd=768, activation_function = 'silu' )
     else:
-        config = CONFIG_MAPPING[model_args.model_type](n_embd=3600, n_layer = 18)
+        config = CONFIG_MAPPING[model_args.model_type](n_embd=3600, n_layer=18)
         logger.warning("You are instantiating a new config instance from scratch.")
         if model_args.config_overrides is not None:
             logger.info(f"Overriding config: {model_args.config_overrides}")
@@ -562,10 +560,6 @@ def _mp_fn(index):
 
 
 if __name__ == "__main__":
-
-    # A # --output_dir=files/data/output/gpt2 --overwrite_output_dir True --model_type=gpt2 --model_name_or_path=gpt2 --validation_file=files/data/output/woz.test_a.txt --do_eval --save_total_limit 10 --preprocessing_num_workers 48 --per_device_train_batch_size=2 --per_device_eval_batch_size=2
-    # B # --output_dir=files/data/output/b --overwrite_output_dir True --model_type=gpt2 --model_name_or_path=gpt2 --train_file=files/data/output/woz.train_b.txt --do_train --validation_file=files/data/output/woz.test_b.txt --do_eval --save_total_limit 10 --num_train_epochs 10 --preprocessing_num_workers 48 --per_device_train_batch_size=2 --per_device_eval_batch_size=2
-    # C # --output_dir=files/data/output/c --overwrite_output_dir True --model_type=distilgpt2 --model_name_or_path=distilgpt2 --train_file=files/data/output/woz.train_c.txt --do_train --validation_file=files/data/output/woz.test_c.txt --do_eval --save_total_limit 10 --num_train_epochs 10 --preprocessing_num_workers 48 --per_device_train_batch_size=2 --per_device_eval_batch_size=2
 
     # To read the data directory from the argument given
     # add this line in the parameters within run to run the code

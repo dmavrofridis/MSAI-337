@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+
+
+#!/usr/bin/env python
 # coding=utf-8
 # Copyright 2020 The HuggingFace Inc. team. All rights reserved.
 #
@@ -25,6 +31,7 @@ import logging
 import math
 import os
 import sys
+from argparse import ArgumentParser
 
 import torch
 from dataclasses import dataclass, field
@@ -52,6 +59,8 @@ from transformers.testing_utils import CaptureLogger
 from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version
 from transformers.utils.versions import require_version
+from transformers import XLNetConfig, XLNetModel, RobertaConfig,RobertaModel, XLMRobertaXLModel, XLMRobertaXLConfig
+
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
 check_min_version("4.18.0.dev0")
@@ -59,6 +68,7 @@ check_min_version("4.18.0.dev0")
 require_version("datasets>=1.8.0", "To fix: pip install -r examples/pytorch/language-modeling/requirements.txt")
 
 logger = logging.getLogger(__name__)
+
 
 MODEL_CONFIG_CLASSES = list(MODEL_FOR_CAUSAL_LM_MAPPING.keys())
 MODEL_TYPES = tuple(conf.model_type for conf in MODEL_CONFIG_CLASSES)
@@ -74,7 +84,7 @@ class ModelArguments:
         default=None,
         metadata={
             "help": "The model checkpoint for weights initialization."
-                    "Don't set if you want to train a model from scratch."
+            "Don't set if you want to train a model from scratch."
         },
     )
     model_type: Optional[str] = field(
@@ -85,7 +95,7 @@ class ModelArguments:
         default=None,
         metadata={
             "help": "Override some existing default config settings when a model is trained from scratch. Example: "
-                    "n_embd=10,resid_pdrop=0.2,scale_attn_weights=false,summary_type=cls_index"
+            "n_embd=10,resid_pdrop=0.2,scale_attn_weights=false,summary_type=cls_index"
         },
     )
     config_name: Optional[str] = field(
@@ -110,7 +120,7 @@ class ModelArguments:
         default=False,
         metadata={
             "help": "Will use the token generated when running `transformers-cli login` (necessary to use this script "
-                    "with private models)."
+            "with private models)."
         },
     )
 
@@ -142,14 +152,14 @@ class DataTrainingArguments:
         default=None,
         metadata={
             "help": "For debugging purposes or quicker training, truncate the number of training examples to this "
-                    "value if set."
+            "value if set."
         },
     )
     max_eval_samples: Optional[int] = field(
         default=None,
         metadata={
             "help": "For debugging purposes or quicker training, truncate the number of evaluation examples to this "
-                    "value if set."
+            "value if set."
         },
     )
 
@@ -157,8 +167,8 @@ class DataTrainingArguments:
         default=None,
         metadata={
             "help": "Optional input sequence length after tokenization. "
-                    "The training dataset will be truncated in block of this size for training. "
-                    "Default to the model max input length for single sentence inputs (take into account special tokens)."
+            "The training dataset will be truncated in block of this size for training. "
+            "Default to the model max input length for single sentence inputs (take into account special tokens)."
         },
     )
     overwrite_cache: bool = field(
@@ -317,11 +327,13 @@ def main():
         "use_auth_token": True if model_args.use_auth_token else None,
     }
     if model_args.config_name:
+        #config =XLMRobertaXLConfig(XLMRobertaXLModel())
         config = AutoConfig.from_pretrained(model_args.config_name, **config_kwargs)
     elif model_args.model_name_or_path:
+        #config =XLMRobertaXLConfig(XLMRobertaXLModel())
         config = AutoConfig.from_pretrained(model_args.model_name_or_path, **config_kwargs)
     else:
-        config = CONFIG_MAPPING[model_args.model_type]()
+        config = XLMRobertaXLConfig(XLMRobertaXLModel())
         logger.warning("You are instantiating a new config instance from scratch.")
         if model_args.config_overrides is not None:
             logger.info(f"Overriding config: {model_args.config_overrides}")
@@ -336,18 +348,13 @@ def main():
     }
     if model_args.tokenizer_name:
         tokenizer = AutoTokenizer.from_pretrained(model_args.tokenizer_name, **tokenizer_kwargs)
-        '''if tokenizer.pad_token is None:
-            tokenizer.add_special_tokens({'pad_token': '[PAD]'})'''
     elif model_args.model_name_or_path:
         tokenizer = AutoTokenizer.from_pretrained(model_args.model_name_or_path, **tokenizer_kwargs)
-        '''if tokenizer.pad_token is None:
-            tokenizer.add_special_tokens({'pad_token': '[PAD]'})'''
     else:
         raise ValueError(
             "You are instantiating a new tokenizer from scratch. This is not supported by this script."
             "You can do it from another script, save it, and load it from here, using --tokenizer_name."
         )
-
 
     if model_args.model_name_or_path:
         model = AutoModelForCausalLM.from_pretrained(
@@ -361,7 +368,7 @@ def main():
     else:
         model = AutoModelForCausalLM.from_config(config)
         n_params = sum(dict((p.data_ptr(), p.numel()) for p in model.parameters()).values())
-        logger.info(f"Training new model from scratch - Total size={n_params / 2 ** 20:.2f}M params")
+        logger.info(f"Training new model from scratch - Total size={n_params/2**20:.2f}M params")
 
     model.resize_token_embeddings(len(tokenizer))
 
@@ -378,10 +385,7 @@ def main():
 
     def tokenize_function(examples):
         with CaptureLogger(tok_logger) as cl:
-            ###################################################################
             output = tokenizer(examples[text_column_name])
-            #output = tokenizer(examples[text_column_name], padding="max_length", max_length=512)
-        #***********************************************************************#
         # clm input could be much much longer than block_size
         if "Token indices sequence length is longer than the" in cl.out:
             tok_logger.warning(
@@ -426,7 +430,7 @@ def main():
             total_length = (total_length // block_size) * block_size
         # Split by chunks of max_len.
         result = {
-            k: [t[i: i + block_size] for i in range(0, total_length, block_size)]
+            k: [t[i : i + block_size] for i in range(0, total_length, block_size)]
             for k, t in concatenated_examples.items()
         }
         result["labels"] = result["input_ids"].copy()
@@ -438,6 +442,7 @@ def main():
     #
     # To speed up this part, we use multiprocessing. See the documentation of the map method for more information:
     # https://huggingface.co/docs/datasets/package_reference/main_classes.html#datasets.Dataset.map
+
     with training_args.main_process_first(desc="grouping texts together"):
         lm_datasets = tokenized_datasets.map(
             group_texts,
@@ -552,19 +557,7 @@ def _mp_fn(index):
 
 
 if __name__ == "__main__":
-
-    # A # --output_dir=files/data/output/gpt2_untrained --model_type=gpt2 --model_name_or_path=gpt2 --validation_file=files/data/output/woz.test_a.txt --do_eval --save_total_limit 10 --per_device_train_batch_size=2 --per_device_eval_batch_size=2
-
-    # B # --output_dir=files/data/output/gpt2_trained --overwrite_output_dir --model_type=gpt2 --model_name_or_path=gpt2 --train_file=files/data/output/woz.train_b.txt --do_train --validation_file=files/data/output/woz.test_b.txt --do_eval --save_total_limit 10 --num_train_epochs 10 --per_device_train_batch_size=2 --per_device_eval_batch_size=2
-
-    # C # --output_dir=files/data/output/gpt2_fine_tuned --model_type=gpt2 --model_name_or_path=gpt2 --train_file=files/data/output/woz.train_b.txt --do_train --validation_file=files/data/output/woz.test_b.txt --do_eval --save_total_limit 10 --num_train_epochs 8 --per_device_train_batch_size=2 --per_device_eval_batch_size=2
-
-    # D # --output_dir=files/data/output/distilgpt2 --overwrite_output_dir --model_type=distilgpt2 --model_name_or_path=distilgpt2 --train_file=files/data/output/woz.train_c.txt --do_train --validation_file=files/data/output/woz.test_c.txt --do_eval --save_total_limit 10 --num_train_epochs 10 --per_device_train_batch_size=2 --per_device_eval_batch_size=2
-
-    # E # --output_dir=files/data/output/xlnet-base-cased --overwrite_output_dir --model_type=xlnet-base-cased --model_name_or_path=xlnet-base-cased --train_file=files/data/output/woz.train_c.txt --do_train --validation_file=files/data/output/woz.test_c.txt --do_eval --save_total_limit 10 --num_train_epochs 10 --per_device_train_batch_size=2 --per_device_eval_batch_size=2
-
-    # F # --output_dir=files/data/output/roberta-base --overwrite_output_dir --model_type=roberta-base --model_name_or_path=roberta-base --train_file=files/data/output/woz.train_c.txt --do_train --validation_file=files/data/output/woz.test_c.txt --do_eval --save_total_limit 10 --num_train_epochs 10 --per_device_train_batch_size=2 --per_device_eval_batch_size=2
-
+    #
     # To read the data directory from the argument given
     # add this line in the parameters within run to run the code
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
